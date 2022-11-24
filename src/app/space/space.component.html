@@ -1,0 +1,30 @@
+<div
+  [id]="id"
+  class="absolute flex z-1 select-none"
+  [style.height.px]="size"
+  [style.left.px]="centerLeft - size/2"
+  [style.top.px]="centerTop - size/2"
+  [style.width.px]="size"
+  (click)="setCurrentSpaceId()"
+  (mouseenter)="isHighlightVisible = true"
+  (mouseleave)="isHighlightVisible = false"
+>
+  <!-- border-1 border-red-900 -->
+  <!--<span class="text-xs text-white font-bold m-auto absolute">{{id}}</span>-->
+  <!-- currentSpaceId -->
+  <app-paddle-streamer
+    *ngIf="isTileLoaded && id === currentSpaceId"
+    [spaceId]="id"
+    [tileAngle]="tileAngle"
+    [tileSize]="tileSize"
+  ></app-paddle-streamer>
+</div>
+<img
+  src="assets/images/space-highlight.png"
+  class="absolute"
+  [class.hidden]="!isHighlightVisible"
+  [style.left.px]="centerLeft - highlightWidth/2"
+  [style.top.px]="centerTop - highlightHeight/2"
+  [style.width.px]="highlightWidth"
+  alt=""
+>

@@ -1,0 +1,122 @@
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { map, Observable, Subject, takeUntil} from 'rxjs';
+import { Select, Store } from '@ngxs/store';
+
+import { PaddleStreamerColorEnum } from '../shared/paddle-streamer-color.enum';
+import { PaddleStreamers } from '../store/paddle-streamers/paddle-streamers.actions';
+import { PaddleStreamersState } from '../store/paddle-streamers/paddle-streamers.state';
+import { TileAngle } from '../core/tile-angle.model';
+import { TileAngleOffsets } from '../core/tile-angle-offsets.model';
+import { TileComponent } from '../shared/tile-component.model';
+import { TilesState } from "../store/tiles/tiles.state";
+
+@Component({
+  selector: 'app-paddle-streamer',
+  templateUrl: './paddle-streamer.component.html',
+  styleUrls: ['./paddle-streamer.component.scss']
+})
+export class PaddleStreamerComponent implements AfterViewInit, OnDestroy, OnInit {
+  @Input() color?: PaddleStreamerColorEnum = PaddleStreamerColorEnum.Red; // todo: убрать по умолчанию
+  @Input() spaceId!: string;
+  @Input() tileAngle!: TileAngle;
+  @Input() tileSize?: number = 256; // todo: переделать в spaceSize?
+
+  @ViewChild('img') imgRef?: ElementRef;
+
+  @Select(PaddleStreamersState.currentAngle) private currentAngle$!: Observable<TileAngle>;
+  @Select(PaddleStreamersState.scanTrigger) private scanTrigger$!: Observable<number>;
+
+  angle: TileAngle = 0;
+  centerLeft = 0;
+  centerTop = 0;
+
+  tile?: TileComponent;
+
+  private readonly angleOffsetMultipliers: TileAngleOffsets = {
+    0: { left: 0, top: -1.75 },
+    60: { left: 3/2, top: -1/2 },
+    120: { left: 3/2, top: 1 },
+    180: { left: 0, top: 1.75 },
+    240: { left: -1, top: 1 },
+    300: { left: -1, top: -1/2 },
+    360: { left: 0, top: -1.75 }
+  };
+  private currentAngle: TileAngle = 0;
+  private ngUnsubscribe = new Subject<void>();
+
+  constructor(private store: Store) {
+    this.currentAngle$
+      .pipe(
+        takeUntil(this.ngUnsubscribe)
+      )
+      .subscribe((currentAngle) => {
+        this.currentAngle = currentAngle;
+      });
+
+    this.scanTrigger$
+      .pipe(
+        // filter((scanTrigger) => scanTrigger > 0),
+        takeUntil(this.ngUnsubscribe)
+      )
+      .subscribe(() => {
+        this.scan();
+      });
+  }
+
+  get boatAngle(): number {
+    return this.currentAngle - this.tileAngle;
+  }
+
+  get size(): number {
+    return 0.1375 * (this.tileSize as number);
+  }
+
+  ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+  }
+
+  ngOnInit(): void {
+    this.store
+      .selectOnce(TilesState.tile)
+      .pipe(map(filterFn => filterFn(this.spaceId)))
+      .subscribe((tile) => this.tile = tile);
+  }
+
+  ngAfterViewInit(): void {
+    this.store.dispatch(new PaddleStreamers.TriggerScan());
+  }
+
+  private scan(): void {
+    if (!this.tile) {
+      console.error('Фрагмент реки не найден');
+      return;
+    }
+
+    const img = this.imgRef?.nativeElement as HTMLElement | undefined;
+    const rect = img?.getBoundingClientRect();
+
+    if (!rect) {
+      console.error('Картинка парохода не найдена');
+      return;
+    }
+    // console.log('rect', rect);
+
+    const elements = document.elementsFromPoint(
+      rect.left + rect.width/2 + this.angleOffsetMultipliers[this.currentAngle].left*this.size,
+      rect.top + rect.height/2 + this.angleOffsetMultipliers[this.currentAngle].top*this.size
+    );
+
+    // console.log('elements', elements);
+
+    this.store.dispatch(new PaddleStreamers.SetForwardSpaceId(undefined));
+
+    elements.forEach((element) => {
+      const id = element.id;
+      if (element.id.includes('|') && element.id !== this.spaceId) {
+        // console.log('elementId', element.id);
+        this.store.dispatch(new PaddleStreamers.SetForwardSpaceId(element.id));
+      }
+    });
+  }
+}

@@ -1,0 +1,44 @@
+<!--<img
+  src="assets/images/tiles/{{id}}.png"
+  class="absolute"
+  [style.height.px]="size"
+  [style.width.px]="size"
+  [style.top.px]="top"
+  [style.left.px]="left"
+  [style.transform]="'rotate(' + angle + 'deg)'"
+  [alt]="id"
+>-->
+<div
+  [id]="id"
+  class="absolute bg-contain"
+  [style.height.px]="size"
+  [style.width.px]="size"
+  [style.top.px]="top"
+  [style.left.px]="left"
+  [style.transform]="'rotate(' + angle + 'deg)'"
+  [style.background-image]="'url(assets/images/tiles/' + id + '.png)'"
+  [style.z-index]="zIndex"
+  (mouseenter)="onMouseEnter()"
+  (mouseleave)="onMouseLeave()"
+>
+  <div class="relative">
+    <app-space
+      *ngFor="let space of spaces"
+      [centerLeft]="space.centerLeft"
+      [centerTop]="space.centerTop"
+      [currentSpaceId]="currentSpaceId"
+      [id]="space.id"
+      [index]="space.index"
+      [isTileLoaded]="isLoaded"
+      [tileAngle]="angle"
+      [tileId]="id"
+      [tileSize]="size"
+    ></app-space>
+    <!--<app-paddle-streamer
+      *ngIf="id === 'A0'"
+      [centerLeft]="spaces[5].centerLeft"
+      [centerTop]="spaces[5].centerTop"
+      [tileSize]="size"
+    ></app-paddle-streamer>-->
+  </div>
+</div>

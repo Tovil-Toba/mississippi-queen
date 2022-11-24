@@ -1,0 +1,26 @@
+<div
+  #img
+  class="z-3 select-none"
+  [style.width.px]="size"
+  [style.height]="size"
+  [style.left.px]="centerLeft - size/2"
+  [style.top.px]="centerTop - size/2"
+  [style.transform]="'rotate(' + boatAngle + 'deg)'"
+>
+  <img
+    src="assets/images/paddle-streamers/{{color}}.png"
+    [style.width.px]="size"
+    [style.height.px]="size"
+    [alt]="color"
+  >
+</div>
+<!--<img
+  #img
+  src="assets/images/paddle-streamers/{{color}}.png"
+  class=" z-3"
+  [style.width.px]="size"
+  [style.left.px]="centerLeft - size/2"
+  [style.top.px]="centerTop - size/2"
+  [style.transform]="'rotate(' + angle + 'deg)'"
+  [alt]="color"
+>--><!-- [style.height.px]="size" absolute --> <!-- [style.transform]="'rotate(' + angle + 'deg)'" -->
