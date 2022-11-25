@@ -71,6 +71,10 @@ export class PaddleStreamerComponent implements AfterViewInit, OnDestroy, OnInit
     return 0.1375 * (this.tileSize as number);
   }
 
+  ngAfterViewInit(): void {
+    this.store.dispatch(new PaddleStreamers.TriggerScan());
+  }
+
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
@@ -81,10 +85,6 @@ export class PaddleStreamerComponent implements AfterViewInit, OnDestroy, OnInit
       .selectOnce(TilesState.tile)
       .pipe(map(filterFn => filterFn(this.spaceId)))
       .subscribe((tile) => this.tile = tile);
-  }
-
-  ngAfterViewInit(): void {
-    this.store.dispatch(new PaddleStreamers.TriggerScan());
   }
 
   private scan(): void {
@@ -100,21 +100,16 @@ export class PaddleStreamerComponent implements AfterViewInit, OnDestroy, OnInit
       console.error('Картинка парохода не найдена');
       return;
     }
-    // console.log('rect', rect);
 
     const elements = document.elementsFromPoint(
       rect.left + rect.width/2 + this.angleOffsetMultipliers[this.currentAngle].left*this.size,
       rect.top + rect.height/2 + this.angleOffsetMultipliers[this.currentAngle].top*this.size
     );
 
-    // console.log('elements', elements);
-
     this.store.dispatch(new PaddleStreamers.SetForwardSpaceId(undefined));
 
     elements.forEach((element) => {
-      const id = element.id;
       if (element.id.includes('|') && element.id !== this.spaceId) {
-        // console.log('elementId', element.id);
         this.store.dispatch(new PaddleStreamers.SetForwardSpaceId(element.id));
       }
     });

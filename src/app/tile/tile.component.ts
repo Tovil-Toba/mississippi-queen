@@ -1,6 +1,8 @@
 import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { Store } from '@ngxs/store';
 
 import { Coordinates } from '../core/coordinates.model';
+import { PaddleStreamers } from '../store/paddle-streamers/paddle-streamers.actions';
 import { SpaceComponent } from '../shared/space-component.model';
 import { SpaceIndex } from '../core/space-index.model';
 import { TileAngle } from '../core/tile-angle.model';
@@ -22,12 +24,13 @@ export class TileComponent implements AfterViewInit, OnInit {
   @Input() size?: number = 256;
   @Input() top?: number = 0;
 
-  isLoaded = false;
   spaces: Array<SpaceComponent> = new Array<SpaceComponent>();
   zIndex = 0;
 
+  constructor(private store: Store) { }
+
   ngAfterViewInit(): void {
-    this.isLoaded = true;
+    this.store.dispatch(new PaddleStreamers.TriggerScan());
   }
 
   ngOnInit(): void {

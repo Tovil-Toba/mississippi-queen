@@ -18,7 +18,6 @@ export class SpaceComponent {
   @Input() currentSpaceId?: string | null;
   @Input() id!: string;
   @Input() index!: SpaceIndex;
-  @Input() isTileLoaded?: boolean;
   @Input() tileAngle!: TileAngle;
   @Input() tileId!: TileId;
   @Input() tileSize?: number = 256;

@@ -55,7 +55,7 @@ export class RiverComponent implements OnDestroy, OnInit {
         filter((newTileTrigger) => newTileTrigger > 0),
         takeUntil(this.ngUnsubscribe)
       )
-      .subscribe((newTileTrigger) => {
+      .subscribe(() => {
         this.addNewTile();
       });
 
@@ -74,13 +74,18 @@ export class RiverComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit(): void {
-    for (let i = 1; i < this.maxTilesCount; i++) {
-      //this.addNewTile();
-    }
+    /*for (let i = 1; i < this.maxTilesCount; i++) {
+      this.addNewTile();
+    }*/
+    this.addFirstTile();
   }
 
-  private addNewTile(): void {
-    const angle: TileAngle = this.getNewTileAngle();
+  private addFirstTile(): void {
+    this.addNewTile(this.currentAngle);
+    this.store.dispatch(new Tiles.AddTriggeredId(START_TILE_ID));
+  }
+
+  private addNewTile(angle: TileAngle = this.getNewTileAngle()): void {
     const tileAngleOffset = this.getTileAngleOffset(angle);
     let tileLeft = this.currentOffsetLeft + tileAngleOffset.left;
     let tileTop = this.currentOffsetTop + tileAngleOffset.top;
@@ -122,11 +127,13 @@ export class RiverComponent implements OnDestroy, OnInit {
 
   private addPaddleStreamer(): void {
     const paddleStreamer: PaddleStreamer = {
+      coal: 6,
       color: PaddleStreamerColorEnum.Red,
       currentAngle: 0,
       currentSpaceId: 'A0|2',
       // forwardSpaceId: '',
-      scanTrigger: 0
+      scanTrigger: 0,
+      speed: 1
     };
     this.store.dispatch(new PaddleStreamers.Add(paddleStreamer));
     this.store.dispatch(new PaddleStreamers.SetCurrentColor(PaddleStreamerColorEnum.Red));

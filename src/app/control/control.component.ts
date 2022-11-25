@@ -87,8 +87,8 @@ export class ControlComponent implements OnDestroy {
       }
     } else if (
       !this.triggeredTileIds.includes(tileId) &&
-      spaceIndex >= 15 &&
-      spaceIndex <= 19
+      spaceIndex >= 0 &&
+      spaceIndex <= 4
     ) {
       this.store.dispatch(new Tiles.AddTriggeredId(tileId));
       this.store.dispatch(new Tiles.TriggerNew());

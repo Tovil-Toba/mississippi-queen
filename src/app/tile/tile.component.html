@@ -1,13 +1,3 @@
-<!--<img
-  src="assets/images/tiles/{{id}}.png"
-  class="absolute"
-  [style.height.px]="size"
-  [style.width.px]="size"
-  [style.top.px]="top"
-  [style.left.px]="left"
-  [style.transform]="'rotate(' + angle + 'deg)'"
-  [alt]="id"
->-->
 <div
   [id]="id"
   class="absolute bg-contain"
@@ -29,16 +19,9 @@
       [currentSpaceId]="currentSpaceId"
       [id]="space.id"
       [index]="space.index"
-      [isTileLoaded]="isLoaded"
       [tileAngle]="angle"
       [tileId]="id"
       [tileSize]="size"
     ></app-space>
-    <!--<app-paddle-streamer
-      *ngIf="id === 'A0'"
-      [centerLeft]="spaces[5].centerLeft"
-      [centerTop]="spaces[5].centerTop"
-      [tileSize]="size"
-    ></app-paddle-streamer>-->
   </div>
 </div>

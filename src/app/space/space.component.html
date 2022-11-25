@@ -11,9 +11,8 @@
 >
   <!-- border-1 border-red-900 -->
   <!--<span class="text-xs text-white font-bold m-auto absolute">{{id}}</span>-->
-  <!-- currentSpaceId -->
   <app-paddle-streamer
-    *ngIf="isTileLoaded && id === currentSpaceId"
+    *ngIf="id === currentSpaceId"
     [spaceId]="id"
     [tileAngle]="tileAngle"
     [tileSize]="tileSize"

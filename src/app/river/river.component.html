@@ -1,8 +1,5 @@
-<!--{{currentSpaceId}}-->
-<!--{{spacesService.currentAngle}}-->
-
 <app-tile
-  *ngFor="let tile of tiles$ | async; let index=index;"
+  *ngFor="let tile of tiles; let index=index;"
   [angle]="tile.angle"
   [currentSpaceId]="currentSpaceId$ | async"
   [id]="tile.id"
@@ -11,23 +8,3 @@
   [top]="tile.top"
   [left]="tile.left"
 ></app-tile>
-
-<!-- todo: удалить, вариант ниже лучше -->
-<!--<app-paddle-streamer
-  *ngFor="let startSpace of startSpaces"
-  [centerLeft]="startSpace.centerLeft"
-  [centerTop]="startSpace.centerTop"
-  [tileSize]="tileSize"
-></app-paddle-streamer>-->
-
-<!--<app-paddle-streamer
-  *ngFor="let startSpaceId of startSpaceIds"
-  [spaceId]="startSpaceId"
-  [tileSize]="tileSize"
-></app-paddle-streamer>-->
-
-<!--<app-paddle-streamer
-  *ngIf="currentSpaceId"
-  [spaceId]="currentSpaceId"
-  [tileSize]="tileSize"
-></app-paddle-streamer>-->
