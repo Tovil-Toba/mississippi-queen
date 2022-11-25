@@ -6,6 +6,7 @@ import { getIndexOfSpaceId, getTileIdBySpaceId } from '../shared/utils';
 import { PaddleStreamers } from '../store/paddle-streamers/paddle-streamers.actions';
 import { PaddleStreamersState } from '../store/paddle-streamers/paddle-streamers.state';
 import { Tiles } from '../store/tiles/tiles.actions';
+import { TileAngle } from '../core/tile-angle.model';
 import { TileId } from '../core/tile-id.model';
 import { TilesState } from '../store/tiles/tiles.state';
 
@@ -15,6 +16,7 @@ import { TilesState } from '../store/tiles/tiles.state';
   styleUrls: ['./control.component.scss']
 })
 export class ControlComponent implements OnDestroy {
+  @Select(PaddleStreamersState.history) history$!: Observable<Array<TileAngle | string>>;
   @Select(PaddleStreamersState.currentSpaceId) private currentSpaceId$!: Observable<string | undefined>;
   @Select(PaddleStreamersState.forwardSpaceId) private forwardSpaceId$!: Observable<string | undefined>;
   @Select(TilesState.triggeredTileIds) private triggeredTileIds$!: Observable<Array<TileId>>;
@@ -52,6 +54,10 @@ export class ControlComponent implements OnDestroy {
         this.triggeredTileIds = triggeredTileIds;
       })
     ;
+  }
+
+  endTurn(): void {
+    this.store.dispatch(new PaddleStreamers.EndTurn());
   }
 
   ngOnDestroy(): void {
@@ -94,12 +100,14 @@ export class ControlComponent implements OnDestroy {
   }
 
   rotateLeft(): void {
-    console.log('Повернуть налево');
     this.store.dispatch(new PaddleStreamers.RotateLeft());
   }
 
   rotateRight(): void {
-    console.log('Повернуть направо');
     this.store.dispatch(new PaddleStreamers.RotateRight());
+  }
+
+  stepBack(): void {
+    this.store.dispatch(new PaddleStreamers.StepBack());
   }
 }

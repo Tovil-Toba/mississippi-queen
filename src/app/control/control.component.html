@@ -31,14 +31,15 @@
     tooltipPosition="left"
   ></button>
 </div>
-<!--<div>
+<div>
   <button
     pButton
     pRipple
     icon="fa-solid fa-delete-left"
     type="button"
     class="p-button-lg h-3rem w-3rem p-button-danger mr-3"
-    (click)="rotateRight()"
+    [disabled]="!(history$ | async)?.length"
+    (click)="stepBack()"
   ></button>
 
   <button
@@ -47,6 +48,7 @@
     icon="fa-solid fa-check"
     type="button"
     class="p-button-lg h-3rem w-3rem p-button-success"
-    (click)="rotateRight()"
+    disabled
+    (click)="endTurn()"
   ></button>
-</div>-->
+</div>

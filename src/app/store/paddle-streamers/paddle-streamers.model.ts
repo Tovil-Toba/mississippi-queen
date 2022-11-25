@@ -12,6 +12,7 @@ export interface PaddleStreamer {
 
 export class PaddleStreamersStateModel {
   public currentColor?: PaddleStreamerColorEnum;
+  public history!: Array<TileAngle | string>;
   public order!: Array<any>; // todo: реализовать
   public paddleStreamers!: {[color in PaddleStreamerColorEnum]?: PaddleStreamer };
 }

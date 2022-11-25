@@ -7,6 +7,14 @@ export namespace PaddleStreamers {
     constructor(public readonly payload: PaddleStreamer) { }
   }
 
+  export class ClearHistory {
+    static readonly type = '[PaddleStreamers] Clear History';
+  }
+
+  export class EndTurn {
+    static readonly type = '[PaddleStreamers] End Turn';
+  }
+
   export class MoveForward {
     static readonly type = '[PaddleStreamers] Move Forward';
   }
@@ -27,6 +35,10 @@ export namespace PaddleStreamers {
   export class SetForwardSpaceId {
     static readonly type = '[PaddleStreamers] Set Forward Space Id';
     constructor(public readonly payload?: string) { }
+  }
+
+  export class StepBack {
+    static readonly type = '[PaddleStreamers] Step Back';
   }
 
   export class TriggerScan {
