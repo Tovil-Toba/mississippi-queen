@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "lint": "ng lint"
   },
   "private": true,
   "dependencies": {
@@ -39,9 +40,10 @@
     "@angular/compiler-cli": "^14.2.0",
     "@ngxs/devtools-plugin": "^3.7.5",
     "@types/jasmine": "~4.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.44.0",
-    "@typescript-eslint/parser": "^5.44.0",
+    "@typescript-eslint/eslint-plugin": "5.43.0",
+    "@typescript-eslint/parser": "5.43.0",
     "eslint": "^8.28.0",
+    "eslint-import-resolver-typescript": "^3.5.2",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-ngxs-style-guide": "^3.0.0",
     "eslint-plugin-prefer-arrow": "^1.2.3",

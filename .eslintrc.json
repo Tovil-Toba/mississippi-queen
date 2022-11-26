@@ -66,7 +66,8 @@
             "classPropertiesAllowed": false
           }
         ],
-        "rxjs-angular/prefer-async-pipe": "off"
+        "rxjs-angular/prefer-async-pipe": "off",
+        "quotes": [2, "single"]
       }
     },
     {
@@ -78,5 +79,11 @@
       ],
       "rules": {}
     }
-  ]
+  ],
+  "settings": {
+    "import/resolver": {
+      "typescript": true,
+      "node": true
+    }
+  }
 }

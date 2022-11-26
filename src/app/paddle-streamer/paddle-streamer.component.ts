@@ -8,7 +8,7 @@ import { PaddleStreamersState } from '../store/paddle-streamers/paddle-streamers
 import { TileAngle } from '../core/tile-angle.model';
 import { TileAngleOffsets } from '../core/tile-angle-offsets.model';
 import { TileComponent } from '../shared/tile-component.model';
-import { TilesState } from "../store/tiles/tiles.state";
+import { TilesState } from '../store/tiles/tiles.state';
 
 @Component({
   selector: 'app-paddle-streamer',

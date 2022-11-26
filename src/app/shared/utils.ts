@@ -33,10 +33,9 @@ export const randomIntFromInterval = (min: number, max: number): number => {
   return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
-export const shuffleArray = (array: Array<any>): void => {
+export const shuffleArray = (array: Array<unknown>): void => {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     [array[i], array[j]] = [array[j], array[i]];
   }
 };
