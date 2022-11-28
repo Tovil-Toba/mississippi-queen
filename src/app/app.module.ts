@@ -1,6 +1,9 @@
 import { NgModule } from '@angular/core';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { ButtonModule } from 'primeng/button';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { ConfirmationService } from 'primeng/api';
 import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
 
@@ -23,12 +26,14 @@ import { TileComponent } from './tile/tile.component';
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     ButtonModule,
+    ConfirmPopupModule,
     NgxsStoreModule,
     RippleModule,
     TooltipModule,
   ],
-  providers: [],
+  providers: [ConfirmationService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

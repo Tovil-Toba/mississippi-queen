@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { filter, Observable, Subject, takeUntil } from 'rxjs';
 import { Select, Store } from '@ngxs/store';
 
@@ -26,7 +26,7 @@ import { TILES_BASIC } from '../core/tiles-basic';
   templateUrl: './river.component.html',
   styleUrls: ['./river.component.scss']
 })
-export class RiverComponent implements OnDestroy, OnInit {
+export class RiverComponent implements AfterViewInit, OnDestroy, OnInit {
   @Input() isAdvancedRules?: boolean;
   @Input() isMoreAdvancedTiles?: boolean;
   @Input() tileSize = 256;
@@ -48,7 +48,6 @@ export class RiverComponent implements OnDestroy, OnInit {
   constructor(private store: Store) {
     this.addStartTile();
     this.generateTileIds();
-    this.addPaddleStreamer();
 
     this.newTileTrigger$
       .pipe(
@@ -66,6 +65,15 @@ export class RiverComponent implements OnDestroy, OnInit {
       .subscribe((tiles) => {
         this.tiles = tiles;
       });
+  }
+
+  ngAfterViewInit(): void {
+    const timeoutId = setTimeout(() => {
+      this.addPaddleStreamer();
+      clearTimeout(timeoutId);
+    }, 1000);
+    // TODO: в будущем и пароходы и первый фрагмент будут появляться уже после выбора настроек,
+    //  в отличие от стартового фрагмента, который будет отрисован изначально
   }
 
   ngOnDestroy(): void {
@@ -133,7 +141,7 @@ export class RiverComponent implements OnDestroy, OnInit {
       currentSpaceId: 'A0|2',
       // forwardSpaceId: '',
       scanTrigger: 0,
-      speed: 1
+      speed: 3
     };
     this.store.dispatch(new PaddleStreamers.Add(paddleStreamer));
     this.store.dispatch(new PaddleStreamers.SetCurrentColor(PaddleStreamerColorEnum.Red));
@@ -180,7 +188,7 @@ export class RiverComponent implements OnDestroy, OnInit {
   private getOffsetTiles(offsetLeft: number, offsetTop: number): Array<TileComponent> {
     const offsetTiles: Array<TileComponent> = [];
 
-    this.tiles.forEach((tile, index) => {
+    this.tiles.forEach((tile) => {
       const offsetTile = {...tile};
       offsetTile.top += offsetTop;
       offsetTile.left += offsetLeft;

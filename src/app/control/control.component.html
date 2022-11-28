@@ -1,54 +1,120 @@
-<div class="mb-3">
-  <button
-    pButton
-    pRipple
-    icon="fa-solid fa-rotate-left"
-    type="button"
-    class="p-button-lg h-3rem w-3rem mr-3"
-    (click)="rotateLeft()"
-    pTooltip="Повернуть налево"
-  ></button>
+<ng-container *ngIf="paddleStreamer">
+  <div class="flex align-items-center mb-1">
+    <i class="fa-solid fa-gauge-high"></i>
+    <span class="ml-1 mr-3">Скорость: {{ paddleStreamer.speed }}</span>
+    <span class="inline-flex">
+      <span class="flex flex-column h-3rem">
+        <button
+          type="button"
+          pButton
+          pRipple
+          icon="fa-solid fa-chevron-up"
+          class="p-button-lg flex-auto p-0 w-3rem border-noround-bottom"
+          (click)="incrementSpeed()"
+          [disabled]="history.length > 0 ||
+            paddleStreamer.speed === 6 ||
+            ((isFreeSpeedChangeUsed$ | async) && paddleStreamer.coal === 0 && (paddleStreamer.speed + 1) !== (initialSpeed$ | async))
+          "
+        ></button>
+        <button
+          type="button"
+          pButton
+          pRipple
+          icon="fa-solid fa-chevron-down"
+          class="p-button-lg flex-auto p-0 w-3rem border-noround-top"
+          (click)="decrementSpeed()"
+          [disabled]="
+            history.length > 0 ||
+            paddleStreamer.speed === 1 ||
+            ((isFreeSpeedChangeUsed$ | async) && paddleStreamer.coal === 0 && (paddleStreamer.speed - 1) !== (initialSpeed$ | async))
+          "
+        ></button>
+      </span>
+    </span>
+  </div>
+  <div class="field">
+    <i class="fa-solid fa-fire"></i>
+    <span class="ml-1">
+      Уголь: <span [class.text-red-600]="!paddleStreamer.coal">{{ paddleStreamer.coal }}</span>
+    </span>
+  </div>
+  <div class="field">
+    <i class="fa-solid fa-angles-right"></i>
+    <span class="ml-1">
+      Очки движения: <span [class.text-red-600]="!movementPoints">{{ movementPoints }}</span>
+    </span>
+  </div>
+  <!--<hr />
 
-  <button
-    pButton
-    pRipple
-    icon="fa-solid fa-arrow-up"
-    type="button"
-    class="p-button-lg h-3rem w-3rem mr-3"
-    [disabled]="!forwardSpaceId"
-    (click)="moveForward()"
-    pTooltip="Двигаться вперед"
-  ></button>
+  <div class="field">
+    <span class="mr-1">
+      Бесплатное изменение скорости:
+    </span>
+    <i class="fa-solid {{ isFreeSpeedChangeUsed ? 'fa-check' : 'fa-minus'}} "></i>
+  </div>
+  <div class="field">
+    <span class="mr-1">
+      Бесплатное изменение направления:
+    </span>
+    <i class="fa-solid {{ isFreeAngleChangeUsed ? 'fa-check' : 'fa-minus'}} "></i>
+  </div>
+  <hr />-->
 
-  <button
-    pButton
-    pRipple
-    icon="fa-solid fa-rotate-right"
-    type="button"
-    class="p-button-lg h-3rem w-3rem"
-    (click)="rotateRight()"
-    pTooltip="Повернуть направо"
-    tooltipPosition="left"
-  ></button>
-</div>
-<div>
-  <button
-    pButton
-    pRipple
-    icon="fa-solid fa-delete-left"
-    type="button"
-    class="p-button-lg h-3rem w-3rem p-button-danger mr-3"
-    [disabled]="!(history$ | async)?.length"
-    (click)="stepBack()"
-  ></button>
+  <div class="field">
+    <button
+      pButton
+      pRipple
+      icon="fa-solid fa-rotate-left"
+      type="button"
+      class="p-button-lg h-3rem w-3rem mr-3"
+      [disabled]="historyAnglesCount && !paddleStreamer.coal"
+      (click)="rotateLeft()"
+      pTooltip="Повернуть налево"
+    ></button>
 
-  <button
-    pButton
-    pRipple
-    icon="fa-solid fa-check"
-    type="button"
-    class="p-button-lg h-3rem w-3rem p-button-success"
-    disabled
-    (click)="endTurn()"
-  ></button>
-</div>
+    <button
+      pButton
+      pRipple
+      icon="fa-solid fa-arrow-up"
+      type="button"
+      class="p-button-lg h-3rem w-3rem mr-3"
+      [disabled]="!paddleStreamer.forwardSpaceId || paddleStreamer.speed === historySpacesCount"
+      (click)="moveForward()"
+      pTooltip="Двигаться вперед"
+    ></button>
+
+    <button
+      pButton
+      pRipple
+      icon="fa-solid fa-rotate-right"
+      type="button"
+      class="p-button-lg h-3rem w-3rem"
+      [disabled]="historyAnglesCount && !paddleStreamer.coal"
+      (click)="rotateRight()"
+      pTooltip="Повернуть направо"
+      tooltipPosition="left"
+    ></button>
+  </div>
+  <div class="field">
+    <button
+      pButton
+      pRipple
+      icon="fa-solid fa-delete-left"
+      type="button"
+      class="p-button-lg h-3rem w-3rem p-button-secondary mr-3"
+      [disabled]="!history.length"
+      (click)="stepBack()"
+    ></button>
+
+    <button
+      pButton
+      pRipple
+      icon="fa-solid fa-check"
+      type="button"
+      class="p-button-lg h-3rem w-3rem p-button-success"
+      [disabled]="historySpacesCount !== paddleStreamer.speed"
+      (click)="confirmEndTurn($event)"
+    ></button>
+    <p-confirmPopup></p-confirmPopup>
+  </div>
+</ng-container>

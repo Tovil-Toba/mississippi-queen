@@ -6,13 +6,17 @@ import { produce } from 'immer';
 import { PaddleStreamer, PaddleStreamersStateModel } from './paddle-streamers.model';
 import { PaddleStreamers } from './paddle-streamers.actions';
 import { PaddleStreamerColorEnum } from '../../shared/paddle-streamer-color.enum';
+import { Speed } from '../../core/speed.model';
 import { TileAngle } from '../../core/tile-angle.model';
 
 const PADDLE_STREAMERS_TOKEN: StateToken<PaddleStreamersStateModel> = new StateToken('paddleStreamers');
 
 const defaults = {
   currentPaddleStreamer: undefined,
+  finishedColors: [],
   history: [],
+  initialSpeed: undefined,
+  isFreeSpeedChangeUsed: false,
   order: [],
   paddleStreamers: {},
 };
@@ -49,10 +53,24 @@ export class PaddleStreamersState {
   }
 
   @Selector()
-  static paddleStreamer(state: PaddleStreamersStateModel): (colorOrSpaceId: PaddleStreamerColorEnum | string) => (PaddleStreamer | undefined) {
+  static initialSpeed(state: PaddleStreamersStateModel): (Speed | undefined) {
+    return state.initialSpeed;
+  }
+
+  @Selector()
+  static isFreeSpeedChangeUsed(state: PaddleStreamersStateModel): (boolean | undefined) {
+    return state.isFreeSpeedChangeUsed;
+  }
+
+  @Selector()
+  static paddleStreamer(
+    state: PaddleStreamersStateModel
+  ): (colorOrSpaceId: PaddleStreamerColorEnum | string) => (PaddleStreamer | undefined) {
     return (colorOrSpaceId: PaddleStreamerColorEnum | string): (PaddleStreamer | undefined) => {
       return Object.values((state.paddleStreamers))
-        .find((paddleStreamer) => paddleStreamer.color === colorOrSpaceId || paddleStreamer.currentSpaceId === colorOrSpaceId);
+        .find((paddleStreamer) => (
+          paddleStreamer.color === colorOrSpaceId || paddleStreamer.currentSpaceId === colorOrSpaceId
+        ));
     };
   }
 
@@ -62,26 +80,104 @@ export class PaddleStreamersState {
   }
 
   @Action(PaddleStreamers.Add)
-  add({ setState }: StateContext<PaddleStreamersStateModel>, { payload }: PaddleStreamers.Add): void {
-    setState(produce((draft) => {
+  add(
+    ctx: StateContext<PaddleStreamersStateModel>,
+    { payload }: PaddleStreamers.Add
+  ): void {
+    ctx.setState(produce((draft) => {
       draft.paddleStreamers[payload.color] = payload;
     }));
   }
 
   @Action(PaddleStreamers.ClearHistory)
-  clearHistory({ patchState }: StateContext<PaddleStreamersStateModel>): void {
-    patchState({ history: [] });
+  clearHistory(ctx: StateContext<PaddleStreamersStateModel>): void {
+    ctx.patchState({ history: [] });
+  }
+
+  @Action(PaddleStreamers.DecrementSpeed)
+  decrementSpeed(ctx: StateContext<PaddleStreamersStateModel>): (void | Observable<void>) {
+    const state = ctx.getState();
+    const currentColor = state.currentColor;
+
+    if (!currentColor) {
+      console.error('Current paddle streamer is undefined');
+      return;
+    }
+
+    const speed = state.paddleStreamers[currentColor]?.speed;
+
+    if (speed === 1) {
+      console.error('Speed cannot be less than 1');
+      return;
+    }
+
+    ctx.setState(produce((draft) => {
+      const paddleStreamer = draft.paddleStreamers[currentColor] as PaddleStreamer;
+
+      if (!draft.initialSpeed) {
+        draft.initialSpeed = paddleStreamer.speed;
+      }
+
+      paddleStreamer.speed--;
+      draft.isFreeSpeedChangeUsed = paddleStreamer.speed !== draft.initialSpeed;
+
+      if (paddleStreamer.speed < (draft.initialSpeed - 1)) {
+        paddleStreamer.coal--;
+      } else if (paddleStreamer.speed > draft.initialSpeed){
+        paddleStreamer.coal++;
+      }
+    }));
   }
 
   @Action(PaddleStreamers.EndTurn)
-  endTurn({ patchState }: StateContext<PaddleStreamersStateModel>): void {
-    patchState({ history: [] });
+  endTurn(ctx: StateContext<PaddleStreamersStateModel>): void {
+    ctx.patchState({
+      history: [],
+      initialSpeed: undefined,
+      isFreeSpeedChangeUsed: false
+    });
     // TODO: реализовать
   }
 
+  @Action(PaddleStreamers.IncrementSpeed)
+  incrementSpeed(ctx: StateContext<PaddleStreamersStateModel>
+  ): (void | Observable<void>) {
+    const state = ctx.getState();
+    const currentColor = state.currentColor;
+
+    if (!currentColor) {
+      console.error('Current paddle streamer is undefined');
+      return;
+    }
+
+    const speed = state.paddleStreamers[currentColor]?.speed;
+
+    if (speed === 6) {
+      console.error('Speed cannot be more than 6');
+      return;
+    }
+
+    ctx.setState(produce((draft) => {
+      const paddleStreamer = draft.paddleStreamers[currentColor] as PaddleStreamer;
+
+      if (!draft.initialSpeed) {
+        draft.initialSpeed = paddleStreamer.speed;
+      }
+
+      paddleStreamer.speed++;
+      draft.isFreeSpeedChangeUsed = paddleStreamer.speed !== draft.initialSpeed;
+
+      if (paddleStreamer.speed > (draft.initialSpeed + 1)) {
+        paddleStreamer.coal--;
+      } else if (paddleStreamer.speed < draft.initialSpeed){
+        paddleStreamer.coal++;
+      }
+    }));
+  }
+
   @Action(PaddleStreamers.MoveForward)
-  moveForward({ dispatch, getState, setState }: StateContext<PaddleStreamersStateModel>): (void | Observable<void>) {
-    const state = getState();
+  moveForward(ctx: StateContext<PaddleStreamersStateModel>): (void | Observable<void>) {
+    const state = ctx.getState();
     const currentColor = state.currentColor;
 
     if (!currentColor) {
@@ -96,18 +192,18 @@ export class PaddleStreamersState {
       return;
     }
 
-    setState(produce((draft) => {
+    ctx.setState(produce((draft) => {
       const paddleStreamer = draft.paddleStreamers[currentColor] as PaddleStreamer;
       draft.history.push(paddleStreamer.currentSpaceId as string);
       paddleStreamer.currentSpaceId = forwardSpaceId;
     }));
 
-    return dispatch(new PaddleStreamers.TriggerScan());
+    return ctx.dispatch(new PaddleStreamers.TriggerScan());
   }
 
   @Action(PaddleStreamers.RotateLeft)
-  rotateLeft({ dispatch, getState, setState }: StateContext<PaddleStreamersStateModel>): (void | Observable<void>) {
-    const state = getState();
+  rotateLeft(ctx: StateContext<PaddleStreamersStateModel>): (void | Observable<void>) {
+    const state = ctx.getState();
     const currentColor = state.currentColor;
 
     if (!currentColor || !state.paddleStreamers[currentColor]) {
@@ -116,23 +212,19 @@ export class PaddleStreamersState {
     }
 
     let currentAngle = state.paddleStreamers[currentColor]?.currentAngle as TileAngle;
+
     if (currentAngle === 0) {
       currentAngle = 360;
     }
+
     currentAngle -= 60;
 
-    setState(produce((draft) => {
-      const paddleStreamer = draft.paddleStreamers[currentColor] as PaddleStreamer;
-      draft.history.push(paddleStreamer.currentAngle);
-      paddleStreamer.currentAngle = currentAngle;
-    }));
-
-    return dispatch(new PaddleStreamers.TriggerScan());
+    return ctx.dispatch(new PaddleStreamers.SetCurrentAngle(currentAngle as TileAngle));
   }
 
   @Action(PaddleStreamers.RotateRight)
-  rotateRight({ dispatch, getState, setState }: StateContext<PaddleStreamersStateModel>): (void | Observable<void>) {
-    const state = getState();
+  rotateRight(ctx: StateContext<PaddleStreamersStateModel>): (void | Observable<void>) {
+    const state = ctx.getState();
     const currentColor = state.currentColor;
 
     if (!currentColor || !state.paddleStreamers[currentColor]) {
@@ -141,28 +233,26 @@ export class PaddleStreamersState {
     }
 
     let currentAngle = state.paddleStreamers[currentColor]?.currentAngle as TileAngle;
+
     if (currentAngle === 360) {
       currentAngle = 0;
     }
+
     currentAngle += 60;
 
-    setState(produce((draft) => {
-      const paddleStreamer = draft.paddleStreamers[currentColor] as PaddleStreamer;
-      draft.history.push(paddleStreamer.currentAngle);
-      paddleStreamer.currentAngle = currentAngle;
-    }));
+    if (currentAngle === 360) {
+      currentAngle = 0;
+    }
 
-    return dispatch(new PaddleStreamers.TriggerScan());
+    return ctx.dispatch(new PaddleStreamers.SetCurrentAngle(currentAngle as TileAngle));
   }
 
-  @Action(PaddleStreamers.SetCurrentColor)
-  setCurrentColor({ patchState }: StateContext<PaddleStreamersStateModel>, { payload }: PaddleStreamers.SetCurrentColor): void {
-    patchState({ currentColor: payload });
-  }
-
-  @Action(PaddleStreamers.SetForwardSpaceId)
-  setForwardSpaceId({ getState, setState }: StateContext<PaddleStreamersStateModel>, { payload }: PaddleStreamers.SetForwardSpaceId): void {
-    const state = getState();
+  @Action(PaddleStreamers.SetCurrentAngle)
+  setCurrentAngle(
+    ctx: StateContext<PaddleStreamersStateModel>,
+    { payload }: PaddleStreamers.SetCurrentAngle
+  ): (void | Observable<void>) {
+    const state = ctx.getState();
     const currentColor = state.currentColor;
 
     if (!currentColor || !state.paddleStreamers[currentColor]) {
@@ -170,14 +260,61 @@ export class PaddleStreamersState {
       return;
     }
 
-    setState(produce((draft) => {
+    const lastStep = state.history[state.history.length - 1];
+    const historyAnglesCount = state.history.filter((item) => typeof item !== 'string').length;
+
+    ctx.setState(produce((draft) => {
+      const paddleStreamer = draft.paddleStreamers[currentColor] as PaddleStreamer;
+
+      if (typeof lastStep !== 'string' && lastStep === payload) {
+        if (historyAnglesCount > 1) {
+          paddleStreamer.coal++;
+        }
+
+        draft.history.pop();
+      } else {
+        if (historyAnglesCount) {
+          paddleStreamer.coal--;
+        }
+
+        draft.history.push(paddleStreamer.currentAngle);
+      }
+
+      paddleStreamer.currentAngle = payload;
+    }));
+
+    return ctx.dispatch(new PaddleStreamers.TriggerScan());
+  }
+
+  @Action(PaddleStreamers.SetCurrentColor)
+  setCurrentColor(
+    ctx: StateContext<PaddleStreamersStateModel>,
+    { payload }: PaddleStreamers.SetCurrentColor
+  ): void {
+    ctx.patchState({ currentColor: payload });
+  }
+
+  @Action(PaddleStreamers.SetForwardSpaceId)
+  setForwardSpaceId(
+    ctx: StateContext<PaddleStreamersStateModel>,
+    { payload }: PaddleStreamers.SetForwardSpaceId
+  ): void {
+    const state = ctx.getState();
+    const currentColor = state.currentColor;
+
+    if (!currentColor || !state.paddleStreamers[currentColor]) {
+      console.error('Current paddle streamer is undefined');
+      return;
+    }
+
+    ctx.setState(produce((draft) => {
       (draft.paddleStreamers[currentColor] as PaddleStreamer).forwardSpaceId = payload;
     }));
   }
 
   @Action(PaddleStreamers.StepBack)
-  stepBack({ dispatch, getState, setState }: StateContext<PaddleStreamersStateModel>): (void | Observable<void>) {
-    const state = getState();
+  stepBack(ctx: StateContext<PaddleStreamersStateModel>): (void | Observable<void>) {
+    const state = ctx.getState();
 
     if (!state.history.length) {
       return;
@@ -191,23 +328,29 @@ export class PaddleStreamersState {
     }
 
     const lastStep = state.history[state.history.length - 1];
+    const historyAnglesCount = state.history.filter((item) => typeof item !== 'string').length;
 
-    setState(produce((draft) => {
+    ctx.setState(produce((draft) => {
       const paddleStreamer = draft.paddleStreamers[currentColor] as PaddleStreamer;
       if (typeof lastStep === 'string') {
         paddleStreamer.currentSpaceId = lastStep;
       } else {
         paddleStreamer.currentAngle = lastStep;
+
+        if (historyAnglesCount > 1) {
+          paddleStreamer.coal++;
+        }
       }
+
       draft.history.pop();
     }));
 
-    return dispatch(new PaddleStreamers.TriggerScan());
+    return ctx.dispatch(new PaddleStreamers.TriggerScan());
   }
 
   @Action(PaddleStreamers.TriggerScan)
-  triggerScan({ getState, setState }: StateContext<PaddleStreamersStateModel>): void {
-    const state = getState();
+  triggerScan(ctx: StateContext<PaddleStreamersStateModel>): void {
+    const state = ctx.getState();
     const currentColor = state.currentColor;
 
     if (!currentColor || !state.paddleStreamers[currentColor]) {
@@ -215,7 +358,7 @@ export class PaddleStreamersState {
       return;
     }
 
-    setState(produce((draft) => {
+    ctx.setState(produce((draft) => {
       (draft.paddleStreamers[currentColor] as PaddleStreamer).scanTrigger = Date.now();
     }));
   }

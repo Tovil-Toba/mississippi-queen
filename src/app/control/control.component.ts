@@ -1,10 +1,13 @@
 import { Component, OnDestroy } from '@angular/core';
+import { ConfirmationService } from 'primeng/api';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { Select, Store } from '@ngxs/store';
 
 import { getIndexOfSpaceId, getTileIdBySpaceId } from '../shared/utils';
+import { PaddleStreamer } from '../store/paddle-streamers/paddle-streamers.model';
 import { PaddleStreamers } from '../store/paddle-streamers/paddle-streamers.actions';
 import { PaddleStreamersState } from '../store/paddle-streamers/paddle-streamers.state';
+import { Speed } from '../core/speed.model';
 import { Tiles } from '../store/tiles/tiles.actions';
 import { TileAngle } from '../core/tile-angle.model';
 import { TileId } from '../core/tile-id.model';
@@ -16,33 +19,36 @@ import { TilesState } from '../store/tiles/tiles.state';
   styleUrls: ['./control.component.scss']
 })
 export class ControlComponent implements OnDestroy {
-  @Select(PaddleStreamersState.history) history$!: Observable<Array<TileAngle | string>>;
-  @Select(PaddleStreamersState.currentSpaceId) private currentSpaceId$!: Observable<string | undefined>;
-  @Select(PaddleStreamersState.forwardSpaceId) private forwardSpaceId$!: Observable<string | undefined>;
+  @Select(PaddleStreamersState.initialSpeed) initialSpeed$!: Observable<Speed | undefined>;
+  @Select(PaddleStreamersState.isFreeSpeedChangeUsed) isFreeSpeedChangeUsed$!: Observable<boolean | undefined>;
+
+  @Select(PaddleStreamersState.history) private history$!: Observable<Array<TileAngle | string>>;
+  @Select(PaddleStreamersState.currentPaddleStreamer) private currentPaddleStreamer$!: Observable<PaddleStreamer | undefined>;
   @Select(TilesState.triggeredTileIds) private triggeredTileIds$!: Observable<Array<TileId>>;
 
-  forwardSpaceId?: string;
+  history: Array<TileAngle | string> = [];
+  paddleStreamer?: PaddleStreamer;
 
-  private currentSpaceId?: string;
   private ngUnsubscribe = new Subject<void>();
   private triggeredTileIds: Array<TileId> = new Array<TileId>();
 
-  constructor(private store: Store) {
-    this.currentSpaceId$
+  constructor(private confirmationService: ConfirmationService, private store: Store) {
+    this.currentPaddleStreamer$
       .pipe(
+        // distinct((paddleStreamer) => paddleStreamer?.color),
         takeUntil(this.ngUnsubscribe)
       )
-      .subscribe((currentSpaceId) => {
-        this.currentSpaceId = currentSpaceId;
+      .subscribe((paddleStreamer) => {
+        this.paddleStreamer = paddleStreamer;
       })
     ;
 
-    this.forwardSpaceId$
+    this.history$
       .pipe(
         takeUntil(this.ngUnsubscribe)
       )
-      .subscribe((forwardSpaceId) => {
-        this.forwardSpaceId = forwardSpaceId;
+      .subscribe((history) => {
+        this.history = history;
       })
     ;
 
@@ -56,8 +62,37 @@ export class ControlComponent implements OnDestroy {
     ;
   }
 
-  endTurn(): void {
-    this.store.dispatch(new PaddleStreamers.EndTurn());
+  get historyAnglesCount(): number {
+    return this.history.filter((item) => typeof item !== 'string').length;
+  }
+
+  get historySpacesCount(): number {
+    return this.history.filter((item) => typeof item === 'string').length;
+  }
+
+  get movementPoints(): number {
+    return this.paddleStreamer ? this.paddleStreamer.speed - this.historySpacesCount : 1;
+  }
+
+  confirmEndTurn(event: Event): void {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Закончить ход?', // Are you sure that you want to proceed? // TODO: можно дописать, что осталось бесплатное изменение направления
+      icon: 'fa-solid fa-triangle-exclamation text-red-600', // pi pi-exclamation-triangle
+      accept: () => {
+        this.endTurn();
+      },
+      acceptLabel: 'Да',
+      rejectLabel: 'Нет'
+    });
+  }
+
+  decrementSpeed(): void {
+    this.store.dispatch(new PaddleStreamers.DecrementSpeed());
+  }
+
+  incrementSpeed(): void {
+    this.store.dispatch(new PaddleStreamers.IncrementSpeed());
   }
 
   ngOnDestroy(): void {
@@ -66,10 +101,9 @@ export class ControlComponent implements OnDestroy {
   }
 
   moveForward(): void {
-    console.log('Двигаться вперёд');
     this.store.dispatch(new PaddleStreamers.MoveForward());
-    const tileId = getTileIdBySpaceId(this.currentSpaceId as string);
-    const spaceIndex = getIndexOfSpaceId(this.currentSpaceId as string);
+    const tileId = getTileIdBySpaceId(this.paddleStreamer?.currentSpaceId as string);
+    const spaceIndex = getIndexOfSpaceId(this.paddleStreamer?.currentSpaceId as string);
 
     if (!tileId || !spaceIndex) {
       return;
@@ -109,5 +143,9 @@ export class ControlComponent implements OnDestroy {
 
   stepBack(): void {
     this.store.dispatch(new PaddleStreamers.StepBack());
+  }
+
+  private endTurn(): void {
+    this.store.dispatch(new PaddleStreamers.EndTurn());
   }
 }

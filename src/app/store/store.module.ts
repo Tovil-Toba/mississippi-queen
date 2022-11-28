@@ -11,7 +11,7 @@ import { TilesState } from './tiles/tiles.state';
 @NgModule({
   imports: [
     CommonModule,
-    NgxsLoggerPluginModule.forRoot({ logger: console, collapsed: false }),
+    NgxsLoggerPluginModule.forRoot({ logger: console, collapsed: true }),
     NgxsReduxDevtoolsPluginModule.forRoot({ disabled: env.production }),
     NgxsModule.forRoot(
       [

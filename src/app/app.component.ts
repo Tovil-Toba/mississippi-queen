@@ -22,6 +22,8 @@ export class AppComponent implements OnInit {
   readonly maxTilesCount = 12; // todo: вынести в настройки
   readonly title = 'Королева Миссисипи';
 
+  isWheelSpinEnabled = false;
+
   constructor(private primengConfig: PrimeNGConfig, private store: Store) {}
 
   ngOnInit(): void {
