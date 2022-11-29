@@ -49,11 +49,11 @@ export class PaddleStreamerComponent implements AfterViewInit, OnDestroy, OnInit
   constructor(private store: Store) {
     this.currentAngle$
       .pipe(
+        map((currentAngle) => this.currentAngle = currentAngle),
         takeUntil(this.ngUnsubscribe)
       )
-      .subscribe((currentAngle) => {
-        this.currentAngle = currentAngle;
-      });
+      .subscribe()
+    ;
 
     this.scanTrigger$
       .pipe(
@@ -85,8 +85,9 @@ export class PaddleStreamerComponent implements AfterViewInit, OnDestroy, OnInit
   ngOnInit(): void {
     this.store
       .selectOnce(TilesState.tile)
-      .pipe(map(filterFn => filterFn(this.spaceId)))
-      .subscribe((tile) => this.tile = tile);
+      .pipe(map((filterFn) => this.tile = filterFn(this.spaceId)))
+      .subscribe()
+    ;
   }
 
   private scan(): void {

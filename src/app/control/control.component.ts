@@ -1,6 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
-import { Observable, Subject, takeUntil } from 'rxjs';
+import { map, Observable, Subject, takeUntil } from 'rxjs';
 import { Select, Store } from '@ngxs/store';
 
 import { getIndexOfSpaceId, getTileIdBySpaceId } from '../shared/utils';
@@ -38,29 +38,26 @@ export class ControlComponent implements OnDestroy {
     this.currentPaddleStreamer$
       .pipe(
         // distinct((paddleStreamer) => paddleStreamer?.color),
+        map((paddleStreamer) => this.paddleStreamer = paddleStreamer),
         takeUntil(this.ngUnsubscribe)
       )
-      .subscribe((paddleStreamer) => {
-        this.paddleStreamer = paddleStreamer;
-      })
+      .subscribe()
     ;
 
     this.history$
       .pipe(
+        map((history) => this.history = history),
         takeUntil(this.ngUnsubscribe)
       )
-      .subscribe((history) => {
-        this.history = history;
-      })
+      .subscribe()
     ;
 
     this.triggeredTileIds$
       .pipe(
+        map((triggeredTileIds) => this.triggeredTileIds = triggeredTileIds),
         takeUntil(this.ngUnsubscribe)
       )
-      .subscribe((triggeredTileIds) => {
-        this.triggeredTileIds = triggeredTileIds;
-      })
+      .subscribe()
     ;
   }
 

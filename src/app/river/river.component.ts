@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, Input, OnDestroy } from '@angular/core';
-import { filter, Observable, Subject, takeUntil } from 'rxjs';
+import { filter, map, Observable, Subject, takeUntil } from 'rxjs';
 import { Select, Store } from '@ngxs/store';
 
 import { Coordinates } from '../core/coordinates.model';
@@ -62,11 +62,11 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
 
     this.tiles$
       .pipe(
+        map((tiles) => this.tiles = tiles),
         takeUntil(this.ngUnsubscribe)
       )
-      .subscribe((tiles) => {
-        this.tiles = tiles;
-      });
+      .subscribe()
+    ;
   }
 
   ngAfterViewInit(): void {
