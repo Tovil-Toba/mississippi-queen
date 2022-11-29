@@ -6,12 +6,14 @@ import { TileId } from '../../core/tile-id.model';
 import { Tiles } from './tiles.actions';
 import { TilesStateModel } from './tiles.model';
 
+import { MAX_TILES_COUNT } from '../../core/settings';
+import { START_TILE, START_TILE_ID } from '../../core/start-tile';
+
 const TILES_TOKEN: StateToken<TilesStateModel> = new StateToken('tiles');
 
 const defaults = {
-  newTileTrigger: 0,
-  tiles: [],
-  triggeredTileIds: []
+  tiles: [START_TILE],
+  triggeredTileIds: [START_TILE_ID]
 };
 
 @State<TilesStateModel>({
@@ -20,11 +22,6 @@ const defaults = {
 })
 @Injectable()
 export class TilesState {
-  @Selector()
-  static newTileTrigger(state: TilesStateModel): number {
-    return state.newTileTrigger;
-  }
-
   @Selector()
   static tile(state: TilesStateModel): (id: TileId | string) => (TileComponent | undefined) {
     return (id: TileId | string): (TileComponent | undefined) => {
@@ -42,8 +39,18 @@ export class TilesState {
   }
 
   @Selector()
+  static tilesCount(state: TilesStateModel): number {
+    return state.tiles.length;
+  }
+
+  @Selector()
   static triggeredTileIds(state: TilesStateModel): Array<TileId> {
     return state.triggeredTileIds;
+  }
+
+  @Selector()
+  static triggeredTilesCount(state: TilesStateModel): number {
+    return state.triggeredTileIds.length;
   }
 
   @Action(Tiles.Add)
@@ -57,6 +64,11 @@ export class TilesState {
   @Action(Tiles.AddTriggeredId)
   addTriggeredId({ getState, patchState }: StateContext<TilesStateModel>, { payload }: Tiles.AddTriggeredId): void {
     const state = getState();
+
+    if (state.triggeredTileIds.includes(payload) || state.triggeredTileIds.length === (MAX_TILES_COUNT - 1)) {
+      return;
+    }
+
     patchState({
       triggeredTileIds: [ ...state.triggeredTileIds, payload ]
     });
@@ -66,13 +78,6 @@ export class TilesState {
   set({ patchState }: StateContext<TilesStateModel>, { payload }: Tiles.Set): void {
     patchState({
       tiles: payload
-    });
-  }
-
-  @Action(Tiles.TriggerNew)
-  triggerNew({ patchState }: StateContext<TilesStateModel>): void {
-    patchState({
-      newTileTrigger: Date.now()
     });
   }
 }

@@ -7,6 +7,8 @@ import { SpaceIndex } from '../core/space-index.model';
 import { TileAngle } from '../core/tile-angle.model';
 import { TileId } from '../core/tile-id.model';
 
+import { TILE_SIZE } from '../core/settings';
+
 @Component({
   selector: 'app-space',
   templateUrl: './space.component.html',
@@ -20,7 +22,7 @@ export class SpaceComponent {
   @Input() index!: SpaceIndex;
   @Input() tileAngle!: TileAngle;
   @Input() tileId!: TileId;
-  @Input() tileSize?: number = 256;
+  @Input() tileSize?: number = TILE_SIZE;
 
   // @Select(PaddleStreamersState.currentSpaceId) currentSpaceId$!: Observable<string | undefined>;
   // isHighlightHidden = true;

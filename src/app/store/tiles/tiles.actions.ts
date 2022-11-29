@@ -19,9 +19,4 @@ export namespace Tiles {
 
     constructor(public readonly payload: Array<TileComponent>) { }
   }
-
-  export class TriggerNew {
-    static readonly type = '[Tiles] Trigger New';
-  }
 }
-

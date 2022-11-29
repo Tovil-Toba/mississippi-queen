@@ -1,13 +1,16 @@
 import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
 import { PrimeNGConfig } from 'primeng/api';
-import { Store } from '@ngxs/store';
+import { Select, Store } from '@ngxs/store';
 
 import { PaddleStreamers } from './store/paddle-streamers/paddle-streamers.actions';
 import { SpaceIndex } from './core/space-index.model';
 import { SpaceTypeAdvancedEnum } from './core/space-type-advanced.enum';
 import { SpaceTypeBasicEnum } from './core/space-type-basic.enum';
 import { TileId } from './core/tile-id.model';
+import { TilesState } from './store/tiles/tiles.state';
 
+import { MAX_TILES_COUNT, TILE_SIZE } from './core/settings';
 import { TILES } from './core/tiles';
 import { TILES_ADVANCED } from './core/tiles-advanced';
 import { TILES_BASIC } from './core/tiles-basic';
@@ -18,8 +21,10 @@ import { TILES_BASIC } from './core/tiles-basic';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  readonly tileSize = 256; // todo: вынести в настройки
-  readonly maxTilesCount = 12; // todo: вынести в настройки
+  @Select(TilesState.tilesCount) readonly tilesCount$!: Observable<number>;
+
+  readonly tileSize = TILE_SIZE;
+  readonly maxTilesCount = MAX_TILES_COUNT;
   readonly title = 'Королева Миссисипи';
 
   isWheelSpinEnabled = false;

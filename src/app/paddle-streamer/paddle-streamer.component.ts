@@ -10,6 +10,8 @@ import { TileAngleOffsets } from '../core/tile-angle-offsets.model';
 import { TileComponent } from '../shared/tile-component.model';
 import { TilesState } from '../store/tiles/tiles.state';
 
+import { TILE_SIZE } from '../core/settings';
+
 @Component({
   selector: 'app-paddle-streamer',
   templateUrl: './paddle-streamer.component.html',
@@ -19,12 +21,12 @@ export class PaddleStreamerComponent implements AfterViewInit, OnDestroy, OnInit
   @Input() color?: PaddleStreamerColorEnum = PaddleStreamerColorEnum.Red; // todo: убрать по умолчанию
   @Input() spaceId!: string;
   @Input() tileAngle!: TileAngle;
-  @Input() tileSize?: number = 256; // todo: переделать в spaceSize?
+  @Input() tileSize?: number = TILE_SIZE;
 
   @ViewChild('img') imgRef?: ElementRef;
 
-  @Select(PaddleStreamersState.currentAngle) private currentAngle$!: Observable<TileAngle>;
-  @Select(PaddleStreamersState.scanTrigger) private scanTrigger$!: Observable<number>;
+  @Select(PaddleStreamersState.currentAngle) private readonly currentAngle$!: Observable<TileAngle>;
+  @Select(PaddleStreamersState.scanTrigger) private readonly scanTrigger$!: Observable<number>;
 
   angle: TileAngle = 0;
   centerLeft = 0;
@@ -89,7 +91,7 @@ export class PaddleStreamerComponent implements AfterViewInit, OnDestroy, OnInit
 
   private scan(): void {
     if (!this.tile) {
-      console.error('Фрагмент реки не найден');
+      // console.error('Фрагмент реки не найден');
       return;
     }
 

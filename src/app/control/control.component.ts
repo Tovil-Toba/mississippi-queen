@@ -13,23 +13,25 @@ import { TileAngle } from '../core/tile-angle.model';
 import { TileId } from '../core/tile-id.model';
 import { TilesState } from '../store/tiles/tiles.state';
 
+import { MAX_TILES_COUNT } from '../core/settings';
+
 @Component({
   selector: 'app-control',
   templateUrl: './control.component.html',
   styleUrls: ['./control.component.scss']
 })
 export class ControlComponent implements OnDestroy {
-  @Select(PaddleStreamersState.initialSpeed) initialSpeed$!: Observable<Speed | undefined>;
-  @Select(PaddleStreamersState.isFreeSpeedChangeUsed) isFreeSpeedChangeUsed$!: Observable<boolean | undefined>;
+  @Select(PaddleStreamersState.initialSpeed) readonly initialSpeed$!: Observable<Speed | undefined>;
+  @Select(PaddleStreamersState.isFreeSpeedChangeUsed) readonly isFreeSpeedChangeUsed$!: Observable<boolean | undefined>;
 
-  @Select(PaddleStreamersState.history) private history$!: Observable<Array<TileAngle | string>>;
-  @Select(PaddleStreamersState.currentPaddleStreamer) private currentPaddleStreamer$!: Observable<PaddleStreamer | undefined>;
-  @Select(TilesState.triggeredTileIds) private triggeredTileIds$!: Observable<Array<TileId>>;
+  @Select(PaddleStreamersState.history) private readonly history$!: Observable<Array<TileAngle | string>>;
+  @Select(PaddleStreamersState.currentPaddleStreamer) private readonly currentPaddleStreamer$!: Observable<PaddleStreamer | undefined>;
+  @Select(TilesState.triggeredTileIds) private readonly triggeredTileIds$!: Observable<Array<TileId>>;
 
   history: Array<TileAngle | string> = [];
   paddleStreamer?: PaddleStreamer;
 
-  private ngUnsubscribe = new Subject<void>();
+  private readonly ngUnsubscribe = new Subject<void>();
   private triggeredTileIds: Array<TileId> = new Array<TileId>();
 
   constructor(private confirmationService: ConfirmationService, private store: Store) {
@@ -109,8 +111,8 @@ export class ControlComponent implements OnDestroy {
       return;
     }
 
-    // todo: отрефакторить покрасивее все это
-    if (this.triggeredTileIds.length >= (12 - 1)) { // todo: в будущем макс кол-во тайлов будет браться из настроек
+    // TODO: переделать по правилам всё это
+    if (this.triggeredTileIds.length >= (MAX_TILES_COUNT - 1)) {
       if (!this.triggeredTileIds.includes(tileId) && // последний тайл не триггерит новый, поэтому такое условие
         spaceIndex >= 16 && spaceIndex <= 18
       ) {
@@ -119,17 +121,6 @@ export class ControlComponent implements OnDestroy {
           clearTimeout(timeoutId);
         }, 100);
       }
-    } else if (
-      !this.triggeredTileIds.includes(tileId) &&
-      spaceIndex >= 0 &&
-      spaceIndex <= 4
-    ) {
-      this.store.dispatch(new Tiles.AddTriggeredId(tileId));
-      this.store.dispatch(new Tiles.TriggerNew());
-      const timeoutId = setTimeout(() => {
-        this.store.dispatch(new PaddleStreamers.TriggerScan());
-        clearTimeout(timeoutId);
-      }, 100);
     }
   }
 
@@ -147,5 +138,16 @@ export class ControlComponent implements OnDestroy {
 
   private endTurn(): void {
     this.store.dispatch(new PaddleStreamers.EndTurn());
+    const tileId = getTileIdBySpaceId(this.paddleStreamer?.currentSpaceId as string);
+
+    if (!tileId) {
+      return;
+    }
+
+    this.store.dispatch(new Tiles.AddTriggeredId(tileId));
+    const timeoutId = setTimeout(() => {
+      this.store.dispatch(new PaddleStreamers.TriggerScan());
+      clearTimeout(timeoutId);
+    }, 100);
   }
 }

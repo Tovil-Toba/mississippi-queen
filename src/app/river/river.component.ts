@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy } from '@angular/core';
 import { filter, Observable, Subject, takeUntil } from 'rxjs';
 import { Select, Store } from '@ngxs/store';
 
@@ -16,7 +16,7 @@ import { TileDirectionEnum } from '../core/tile-direction.enum';
 import { TileId } from '../core/tile-id.model';
 import { TilesState } from '../store/tiles/tiles.state';
 
-import { START_TILE_ID } from '../core/start-tile';
+import { MAX_TILES_COUNT, TILE_SIZE } from '../core/settings';
 import { TILE_ANGLE_OFFSET_MULTIPLIERS } from '../core/tile-angle-offset-multipliers';
 import { TILES_ADVANCED } from '../core/tiles-advanced';
 import { TILES_BASIC } from '../core/tiles-basic';
@@ -26,37 +26,39 @@ import { TILES_BASIC } from '../core/tiles-basic';
   templateUrl: './river.component.html',
   styleUrls: ['./river.component.scss']
 })
-export class RiverComponent implements AfterViewInit, OnDestroy, OnInit {
+export class RiverComponent implements AfterViewInit, OnDestroy {
   @Input() isAdvancedRules?: boolean;
   @Input() isMoreAdvancedTiles?: boolean;
-  @Input() tileSize = 256;
-  @Input() maxTilesCount = 12;
+  @Input() tileSize = TILE_SIZE;
 
-  @Select(PaddleStreamersState.currentSpaceId) currentSpaceId$!: Observable<string | undefined>;
-  @Select(TilesState.tiles) tiles$!: Observable<Array<TileComponent>>;
-
-  @Select(TilesState.newTileTrigger) private newTileTrigger$!: Observable<number>;
+  @Select(PaddleStreamersState.currentSpaceId) readonly currentSpaceId$!: Observable<string | undefined>;
+  @Select(TilesState.tiles) readonly tiles$!: Observable<Array<TileComponent>>;
+  @Select(TilesState.triggeredTilesCount) readonly triggeredTilesCount$!: Observable<number>;
 
   tiles: Array<TileComponent> = new Array<TileComponent>();
 
   private currentAngle: TileAngle = 0;
   private currentOffsetLeft = 0;
   private currentOffsetTop = 0;
-  private ngUnsubscribe = new Subject<void>();
+  private readonly ngUnsubscribe = new Subject<void>();
   private tileIds: Array<TileId> = new Array<TileId>();
 
   constructor(private store: Store) {
-    this.addStartTile();
     this.generateTileIds();
 
-    this.newTileTrigger$
+    this.triggeredTilesCount$
       .pipe(
-        filter((newTileTrigger) => newTileTrigger > 0),
+        filter((triggeredTilesCount) => triggeredTilesCount > 1),
         takeUntil(this.ngUnsubscribe)
       )
-      .subscribe(() => {
+      .subscribe((triggeredTilesCount) => {
         this.addNewTile();
-      });
+
+        if (triggeredTilesCount === (MAX_TILES_COUNT - 1)) {
+          // TODO: this.addFinishTile()
+        }
+      })
+    ;
 
     this.tiles$
       .pipe(
@@ -69,6 +71,7 @@ export class RiverComponent implements AfterViewInit, OnDestroy, OnInit {
 
   ngAfterViewInit(): void {
     const timeoutId = setTimeout(() => {
+      this.addFirstTile();
       this.addPaddleStreamer();
       clearTimeout(timeoutId);
     }, 1000);
@@ -81,16 +84,14 @@ export class RiverComponent implements AfterViewInit, OnDestroy, OnInit {
     this.ngUnsubscribe.complete();
   }
 
-  ngOnInit(): void {
-    /*for (let i = 1; i < this.maxTilesCount; i++) {
+  /*ngOnInit(): void {
+    for (let i = 1; i < MAX_TILES_COUNT; i++) {
       this.addNewTile();
-    }*/
-    this.addFirstTile();
-  }
+    }
+  }*/
 
   private addFirstTile(): void {
     this.addNewTile(this.currentAngle);
-    this.store.dispatch(new Tiles.AddTriggeredId(START_TILE_ID));
   }
 
   private addNewTile(angle: TileAngle = this.getNewTileAngle()): void {
@@ -141,20 +142,10 @@ export class RiverComponent implements AfterViewInit, OnDestroy, OnInit {
       currentSpaceId: 'A0|2',
       // forwardSpaceId: '',
       scanTrigger: 0,
-      speed: 3
+      speed: 1
     };
     this.store.dispatch(new PaddleStreamers.Add(paddleStreamer));
     this.store.dispatch(new PaddleStreamers.SetCurrentColor(PaddleStreamerColorEnum.Red));
-  }
-
-  private addStartTile(): void {
-    const startTile: TileComponent = {
-      id: START_TILE_ID,
-      angle: this.currentAngle,
-      left: this.currentOffsetLeft,
-      top: this.currentOffsetTop
-    };
-    this.store.dispatch(new Tiles.Add(startTile));
   }
 
   private findCrossingTile(offsetTiles: Array<TileComponent>, offsetLeft: number, offsetTop: number): TileComponent | undefined {
@@ -217,7 +208,7 @@ export class RiverComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     shuffleArray(tiles);
-    tiles = tiles.slice(0, this.maxTilesCount);
+    tiles = tiles.slice(0, MAX_TILES_COUNT);
 
     tiles.forEach((tile) => {
       this.tileIds.push(tile.id);

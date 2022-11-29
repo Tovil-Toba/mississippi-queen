@@ -9,6 +9,7 @@ import { TileAngle } from '../core/tile-angle.model';
 import { TileId } from '../core/tile-id.model';
 
 import { SPACE_CENTER_MULTIPLIERS } from '../core/space-center-multipliers';
+import { TILE_SIZE } from '../core/settings';
 
 @Component({
   selector: 'app-tile',
@@ -21,7 +22,7 @@ export class TileComponent implements AfterViewInit, OnInit {
   @Input() id!: TileId;
   @Input() index!: number;
   @Input() left?: number = 0;
-  @Input() size?: number = 256;
+  @Input() size?: number = TILE_SIZE;
   @Input() top?: number = 0;
 
   spaces: Array<SpaceComponent> = new Array<SpaceComponent>();

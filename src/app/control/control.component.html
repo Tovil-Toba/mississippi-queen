@@ -1,7 +1,7 @@
 <ng-container *ngIf="paddleStreamer">
   <div class="flex align-items-center mb-1">
     <i class="fa-solid fa-gauge-high"></i>
-    <span class="ml-1 mr-3">Скорость: {{ paddleStreamer.speed }}</span>
+    <span class="ml-2 mr-3">Скорость: <span class="font-medium">{{ paddleStreamer.speed }}</span></span>
     <span class="inline-flex">
       <span class="flex flex-column h-3rem">
         <button
@@ -34,15 +34,11 @@
   </div>
   <div class="field">
     <i class="fa-solid fa-fire"></i>
-    <span class="ml-1">
-      Уголь: <span [class.text-red-600]="!paddleStreamer.coal">{{ paddleStreamer.coal }}</span>
-    </span>
+    <span class="ml-2">Уголь: <span class="font-medium" [class.text-red-600]="!paddleStreamer.coal">{{ paddleStreamer.coal }}</span></span>
   </div>
   <div class="field">
     <i class="fa-solid fa-angles-right"></i>
-    <span class="ml-1">
-      Очки движения: <span [class.text-red-600]="!movementPoints">{{ movementPoints }}</span>
-    </span>
+    <span class="ml-2">Очки движения: <span class="font-medium" [class.text-red-600]="!movementPoints">{{ movementPoints }}</span></span>
   </div>
   <!--<hr />
 
