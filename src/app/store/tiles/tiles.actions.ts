@@ -19,4 +19,10 @@ export namespace Tiles {
 
     constructor(public readonly payload: Array<TileComponent>) { }
   }
+
+  export class SetFinishSpaceIds {
+    static readonly type = '[Tiles] Set Finish Space Ids';
+
+    constructor(public readonly payload: string[]) { }
+  }
 }

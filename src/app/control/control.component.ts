@@ -101,24 +101,6 @@ export class ControlComponent implements OnDestroy {
 
   moveForward(): void {
     this.store.dispatch(new PaddleStreamers.MoveForward());
-    const tileId = getTileIdBySpaceId(this.paddleStreamer?.currentSpaceId as string);
-    const spaceIndex = getIndexOfSpaceId(this.paddleStreamer?.currentSpaceId as string);
-
-    if (!tileId || !spaceIndex) {
-      return;
-    }
-
-    // TODO: переделать по правилам всё это
-    if (this.triggeredTileIds.length >= (MAX_TILES_COUNT - 1)) {
-      if (!this.triggeredTileIds.includes(tileId) && // последний тайл не триггерит новый, поэтому такое условие
-        spaceIndex >= 16 && spaceIndex <= 18
-      ) {
-        const timeoutId = setTimeout(() => {
-          alert('Финиш!');
-          clearTimeout(timeoutId);
-        }, 100);
-      }
-    }
   }
 
   rotateLeft(): void {

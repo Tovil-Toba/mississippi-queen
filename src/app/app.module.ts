@@ -4,6 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { ConfirmationService } from 'primeng/api';
+import { DialogModule } from 'primeng/dialog';
 import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
 
@@ -29,6 +30,7 @@ import { TileComponent } from './tile/tile.component';
     BrowserAnimationsModule,
     ButtonModule,
     ConfirmPopupModule,
+    DialogModule,
     NgxsStoreModule,
     RippleModule,
     TooltipModule,

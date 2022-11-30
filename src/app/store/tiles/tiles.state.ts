@@ -12,6 +12,7 @@ import { START_TILE, START_TILE_ID } from '../../core/start-tile';
 const TILES_TOKEN: StateToken<TilesStateModel> = new StateToken('tiles');
 
 const defaults = {
+  finishSpaceIds: [],
   tiles: [START_TILE],
   triggeredTileIds: [START_TILE_ID]
 };
@@ -22,6 +23,11 @@ const defaults = {
 })
 @Injectable()
 export class TilesState {
+  @Selector()
+  static finishSpaceIds(state: TilesStateModel): string[] {
+    return state.finishSpaceIds;
+  }
+
   @Selector()
   static tile(state: TilesStateModel): (id: TileId | string) => (TileComponent | undefined) {
     return (id: TileId | string): (TileComponent | undefined) => {
@@ -40,7 +46,7 @@ export class TilesState {
 
   @Selector()
   static tilesCount(state: TilesStateModel): number {
-    return state.tiles.length;
+    return state.tiles.filter((tile) => tile.id !== 'Finish').length;
   }
 
   @Selector()
@@ -78,6 +84,13 @@ export class TilesState {
   set({ patchState }: StateContext<TilesStateModel>, { payload }: Tiles.Set): void {
     patchState({
       tiles: payload
+    });
+  }
+
+  @Action(Tiles.SetFinishSpaceIds)
+  setFinishSpaceIds({ patchState }: StateContext<TilesStateModel>, { payload }: Tiles.SetFinishSpaceIds): void {
+    patchState({
+      finishSpaceIds: payload
     });
   }
 }

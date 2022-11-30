@@ -11,7 +11,7 @@
   (mouseenter)="onMouseEnter()"
   (mouseleave)="onMouseLeave()"
 >
-  <div class="relative">
+  <div *ngIf="id !== 'Finish'" class="relative">
     <app-space
       *ngFor="let space of spaces"
       [centerLeft]="space.centerLeft"

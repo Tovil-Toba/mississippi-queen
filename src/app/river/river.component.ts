@@ -16,7 +16,9 @@ import { TileDirectionEnum } from '../core/tile-direction.enum';
 import { TileId } from '../core/tile-id.model';
 import { TilesState } from '../store/tiles/tiles.state';
 
+import { FINISH_SPACE_INDEXES } from '../core/finish-space-indexes';
 import { MAX_TILES_COUNT, TILE_SIZE } from '../core/settings';
+import { START_TILE_ANGLE, START_TILE_ID } from '../core/start-tile';
 import { TILE_ANGLE_OFFSET_MULTIPLIERS } from '../core/tile-angle-offset-multipliers';
 import { TILES_ADVANCED } from '../core/tiles-advanced';
 import { TILES_BASIC } from '../core/tiles-basic';
@@ -37,9 +39,11 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
 
   tiles: Array<TileComponent> = new Array<TileComponent>();
 
-  private currentAngle: TileAngle = 0;
+  private currentAngle: TileAngle = START_TILE_ANGLE;
+  private currentDirection: TileDirectionEnum = TileDirectionEnum.Forward;
   private currentOffsetLeft = 0;
   private currentOffsetTop = 0;
+  private currentTileId: TileId = START_TILE_ID;
   private readonly ngUnsubscribe = new Subject<void>();
   private tileIds: Array<TileId> = new Array<TileId>();
 
@@ -55,7 +59,10 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
         this.addNewTile();
 
         if (triggeredTilesCount === (MAX_TILES_COUNT - 1)) {
-          // TODO: this.addFinishTile()
+          const timeoutId = setTimeout(() => {
+          this.addFinishTile();
+            clearTimeout(timeoutId);
+          }, 1000);
         }
       })
     ;
@@ -94,6 +101,18 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
     this.addNewTile(this.currentAngle);
   }
 
+  private addFinishTile(): void {
+    const lastTileId = this.currentTileId; // Обязательно до this.addNewTile(), т.к. this.currentTileId переопределится
+    this.addNewTile(); // Повторный вызов, т.к. последний фрагмент в массиве this.tileIds - финишный
+    const finishSpaceIds = this.getFinishSpaceIds(lastTileId);
+    this.store.dispatch(new Tiles.SetFinishSpaceIds(finishSpaceIds));
+  }
+
+  private getFinishSpaceIds(lastTileId: TileId): string[] {
+    const finishSpaceIndexes = FINISH_SPACE_INDEXES[this.currentDirection];
+    return finishSpaceIndexes.map((spaceIndex) => `${lastTileId}|${spaceIndex}`);
+  }
+
   private addNewTile(angle: TileAngle = this.getNewTileAngle()): void {
     const tileAngleOffset = this.getTileAngleOffset(angle);
     let tileLeft = this.currentOffsetLeft + tileAngleOffset.left;
@@ -120,9 +139,10 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
+    this.currentTileId = this.tileIds[0];
     const newTile: TileComponent = {
       angle,
-      id: this.tileIds[0],
+      id: this.currentTileId,
       left: tileLeft,
       top: tileTop
     };
@@ -156,16 +176,16 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
   }
 
   private getNewTileAngle(): TileAngle {
-    const direction:TileDirectionEnum = getRandomTileDirection();
+    this.currentDirection = getRandomTileDirection();
     let angle: TileAngle = this.currentAngle;
 
-    if (direction === TileDirectionEnum.Left) {
+    if (this.currentDirection === TileDirectionEnum.Left) {
       if (angle === 0) {
         angle = 360;
       }
 
       angle -= 60;
-    } else if (direction === TileDirectionEnum.Right) {
+    } else if (this.currentDirection === TileDirectionEnum.Right) {
       if (angle === 360) {
         angle = 0;
       }
@@ -190,7 +210,7 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
   }
 
   private generateTileIds(): void {
-    let tiles: Array<Tile> = TILES_BASIC.filter((tile) => tile.id !== 'A0');
+    let tiles: Array<Tile> = TILES_BASIC.filter((tile) => tile.id !== 'A0' && tile.id !== 'Finish');
 
     if (this.isAdvancedRules) {
       let basicIdsToReplace: Array<TileId> = ['A3-1', 'A3-2', 'A3-3'];
@@ -213,6 +233,8 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
     tiles.forEach((tile) => {
       this.tileIds.push(tile.id);
     });
+
+    this.tileIds.push('Finish');
   }
 
   private getTileAngleOffset(angle: TileAngle): Coordinates {

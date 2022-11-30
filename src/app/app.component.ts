@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { map, Observable, Subject, takeUntil } from 'rxjs';
 import { PrimeNGConfig } from 'primeng/api';
 import { Select, Store } from '@ngxs/store';
 
 import { PaddleStreamers } from './store/paddle-streamers/paddle-streamers.actions';
+import { PaddleStreamersState } from './store/paddle-streamers/paddle-streamers.state';
 import { SpaceIndex } from './core/space-index.model';
 import { SpaceTypeAdvancedEnum } from './core/space-type-advanced.enum';
 import { SpaceTypeBasicEnum } from './core/space-type-basic.enum';
@@ -20,16 +21,33 @@ import { TILES_BASIC } from './core/tiles-basic';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnDestroy, OnInit {
+  @Select(PaddleStreamersState.finishedColors) readonly finishedColors$!: Observable<string[]>;
   @Select(TilesState.tilesCount) readonly tilesCount$!: Observable<number>;
 
   readonly tileSize = TILE_SIZE;
   readonly maxTilesCount = MAX_TILES_COUNT;
   readonly title = 'Королева Миссисипи';
 
+  isFinishDialogVisible = false;
   isWheelSpinEnabled = false;
 
-  constructor(private primengConfig: PrimeNGConfig, private store: Store) {}
+  private readonly ngUnsubscribe = new Subject<void>();
+
+  constructor(private primengConfig: PrimeNGConfig, private store: Store) {
+    this.finishedColors$
+      .pipe(
+        map((finishedColors) => this.isFinishDialogVisible = !!finishedColors.length),
+        takeUntil(this.ngUnsubscribe)
+      )
+      .subscribe()
+    ;
+  }
+
+  ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+  }
 
   ngOnInit(): void {
     this.primengConfig.ripple = true;

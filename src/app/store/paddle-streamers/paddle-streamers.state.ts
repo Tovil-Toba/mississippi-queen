@@ -1,4 +1,4 @@
-import { Action, State, Selector, StateContext, StateToken } from '@ngxs/store';
+import { Action, State, Selector, StateContext, StateToken, Store } from '@ngxs/store';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { produce } from 'immer';
@@ -8,6 +8,9 @@ import { PaddleStreamers } from './paddle-streamers.actions';
 import { PaddleStreamerColorEnum } from '../../shared/paddle-streamer-color.enum';
 import { Speed } from '../../core/speed.model';
 import { TileAngle } from '../../core/tile-angle.model';
+import { TilesState } from '../tiles/tiles.state';
+
+import { MAX_TILES_COUNT } from '../../core/settings';
 
 const PADDLE_STREAMERS_TOKEN: StateToken<PaddleStreamersStateModel> = new StateToken('paddleStreamers');
 
@@ -27,6 +30,8 @@ const defaults = {
 })
 @Injectable()
 export class PaddleStreamersState {
+  constructor(private store: Store) {}
+
   @Selector()
   static currentAngle(state: PaddleStreamersStateModel): TileAngle {
     return state.currentColor ? state.paddleStreamers[state.currentColor]?.currentAngle ?? 0 : 0;
@@ -40,6 +45,11 @@ export class PaddleStreamersState {
   @Selector()
   static currentSpaceId(state: PaddleStreamersStateModel): (string | undefined) {
     return state.currentColor ? state.paddleStreamers[state.currentColor]?.currentSpaceId : undefined;
+  }
+
+  @Selector()
+  static finishedColors(state: PaddleStreamersStateModel): string[] {
+    return state.finishedColors;
   }
 
   @Selector()
@@ -131,12 +141,32 @@ export class PaddleStreamersState {
 
   @Action(PaddleStreamers.EndTurn)
   endTurn(ctx: StateContext<PaddleStreamersStateModel>): void {
+    const state = ctx.getState();
+    const currentColor = state.currentColor;
+
+    if (!currentColor) {
+      console.error('Current paddle streamer is undefined');
+      return;
+    }
+
+    const paddleStreamer = state.paddleStreamers[currentColor] as PaddleStreamer;
+    const finishSpaceIds = this.store.selectSnapshot(TilesState.finishSpaceIds);
+    const tilesCount = this.store.selectSnapshot(TilesState.tilesCount);
+    let finishedColors = state.finishedColors;
+
+    if (tilesCount === MAX_TILES_COUNT &&
+      finishSpaceIds.includes(paddleStreamer.currentSpaceId as string) &&
+      paddleStreamer.speed === 1
+    ) {
+      finishedColors = [...finishedColors, currentColor];
+    }
+
     ctx.patchState({
+      finishedColors,
       history: [],
       initialSpeed: undefined,
       isFreeSpeedChangeUsed: false
     });
-    // TODO: реализовать
   }
 
   @Action(PaddleStreamers.IncrementSpeed)

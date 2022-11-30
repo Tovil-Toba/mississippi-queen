@@ -11,4 +11,5 @@ export type TileIdBasic =
   | 'A3-1'
   | 'A3-2'
   | 'A3-3'
+  | 'Finish'
 ;
