@@ -10,6 +10,7 @@ import { TooltipModule } from 'primeng/tooltip';
 
 import { AppComponent } from './app.component';
 import { ControlComponent } from './control/control.component';
+import { FinishDialogComponent } from './finish-dialog/finish-dialog.component';
 import { NgxsStoreModule } from './store/store.module';
 import { PaddleStreamerComponent } from './paddle-streamer/paddle-streamer.component';
 import { RiverComponent } from './river/river.component';
@@ -20,6 +21,7 @@ import { TileComponent } from './tile/tile.component';
   declarations: [
     AppComponent,
     ControlComponent,
+    FinishDialogComponent,
     PaddleStreamerComponent,
     RiverComponent,
     SpaceComponent,
