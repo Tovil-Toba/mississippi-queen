@@ -4,13 +4,14 @@ import { PrimeNGConfig } from 'primeng/api';
 import { Select, Store } from '@ngxs/store';
 
 import { PaddleStreamers } from './store/paddle-streamers/paddle-streamers.actions';
+import { SettingsService } from './core/settings.service';
 import { SpaceIndex } from './core/space-index.model';
 import { SpaceTypeAdvancedEnum } from './core/space-type-advanced.enum';
 import { SpaceTypeBasicEnum } from './core/space-type-basic.enum';
 import { TileId } from './core/tile-id.model';
+import { TileSize } from './core/tile-size.model';
 import { TilesState } from './store/tiles/tiles.state';
 
-import { MAX_TILES_COUNT, TILE_SIZE } from './core/settings';
 import { TILES } from './core/tiles';
 import { TILES_ADVANCED } from './core/tiles-advanced';
 import { TILES_BASIC } from './core/tiles-basic';
@@ -23,13 +24,23 @@ import { TILES_BASIC } from './core/tiles-basic';
 export class AppComponent implements OnInit {
   @Select(TilesState.tilesCount) readonly tilesCount$!: Observable<number>;
 
-  readonly tileSize = TILE_SIZE;
-  readonly maxTilesCount = MAX_TILES_COUNT;
   readonly title = 'Королева Миссисипи';
 
   isWheelSpinEnabled = false;
 
-  constructor(private primengConfig: PrimeNGConfig, private store: Store) { }
+  constructor(
+    private primengConfig: PrimeNGConfig,
+    private settings: SettingsService,
+    private store: Store
+  ) { }
+
+  get maxTilesCount(): number {
+    return this.settings.maxTilesCount;
+  }
+
+  get tileSize(): TileSize {
+    return this.settings.tileSize;
+  }
 
   ngOnInit(): void {
     this.primengConfig.ripple = true;

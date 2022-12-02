@@ -7,9 +7,10 @@ import { SpaceComponent } from '../shared/space-component.model';
 import { SpaceIndex } from '../core/space-index.model';
 import { TileAngle } from '../core/tile-angle.model';
 import { TileId } from '../core/tile-id.model';
+import { TileSize } from '../core/tile-size.model';
 
 import { SPACE_CENTER_MULTIPLIERS } from '../core/space-center-multipliers';
-import { TILE_SIZE } from '../core/settings';
+import { TILE_SIZE } from '../core/default-settings';
 
 @Component({
   selector: 'app-tile',
@@ -22,10 +23,10 @@ export class TileComponent implements AfterViewInit, OnInit {
   @Input() id!: TileId;
   @Input() index!: number;
   @Input() left?: number = 0;
-  @Input() size?: number = TILE_SIZE;
+  @Input() size?: TileSize = TILE_SIZE;
   @Input() top?: number = 0;
 
-  spaces: Array<SpaceComponent> = new Array<SpaceComponent>();
+  spaces: Array<SpaceComponent> = [];
   zIndex = 0;
 
   constructor(private store: Store) { }

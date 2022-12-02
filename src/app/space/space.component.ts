@@ -1,13 +1,14 @@
 import { Component, Input } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Select, Store } from '@ngxs/store';
+import { TileSize } from '../core/tile-size.model';
 
 import { PaddleStreamersState } from '../store/paddle-streamers/paddle-streamers.state';
 import { SpaceIndex } from '../core/space-index.model';
 import { TileAngle } from '../core/tile-angle.model';
 import { TileId } from '../core/tile-id.model';
 
-import { TILE_SIZE } from '../core/settings';
+import { TILE_SIZE } from '../core/default-settings';
 
 @Component({
   selector: 'app-space',
@@ -22,7 +23,7 @@ export class SpaceComponent {
   @Input() index!: SpaceIndex;
   @Input() tileAngle!: TileAngle;
   @Input() tileId!: TileId;
-  @Input() tileSize?: number = TILE_SIZE;
+  @Input() tileSize?: TileSize = TILE_SIZE;
 
   // @Select(PaddleStreamersState.currentSpaceId) currentSpaceId$!: Observable<string | undefined>;
   // isHighlightHidden = true;

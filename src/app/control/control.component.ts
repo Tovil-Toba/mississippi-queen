@@ -3,7 +3,7 @@ import { ConfirmationService } from 'primeng/api';
 import { map, Observable, Subject, takeUntil } from 'rxjs';
 import { Select, Store } from '@ngxs/store';
 
-import { getIndexOfSpaceId, getTileIdBySpaceId } from '../shared/utils';
+import { getTileIdBySpaceId } from '../shared/utils';
 import { PaddleStreamer } from '../store/paddle-streamers/paddle-streamers.model';
 import { PaddleStreamers } from '../store/paddle-streamers/paddle-streamers.actions';
 import { PaddleStreamersState } from '../store/paddle-streamers/paddle-streamers.state';
@@ -12,8 +12,6 @@ import { Tiles } from '../store/tiles/tiles.actions';
 import { TileAngle } from '../core/tile-angle.model';
 import { TileId } from '../core/tile-id.model';
 import { TilesState } from '../store/tiles/tiles.state';
-
-import { MAX_TILES_COUNT } from '../core/settings';
 
 @Component({
   selector: 'app-control',
@@ -32,7 +30,7 @@ export class ControlComponent implements OnDestroy {
   paddleStreamer?: PaddleStreamer;
 
   private readonly ngUnsubscribe = new Subject<void>();
-  private triggeredTileIds: Array<TileId> = new Array<TileId>();
+  private triggeredTileIds: Array<TileId> = [];
 
   constructor(private confirmationService: ConfirmationService, private store: Store) {
     this.currentPaddleStreamer$

@@ -6,11 +6,10 @@ import { produce } from 'immer';
 import { PaddleStreamer, PaddleStreamersStateModel } from './paddle-streamers.model';
 import { PaddleStreamers } from './paddle-streamers.actions';
 import { PaddleStreamerColorEnum } from '../../shared/paddle-streamer-color.enum';
+import { SettingsService } from '../../core/settings.service';
 import { Speed } from '../../core/speed.model';
 import { TileAngle } from '../../core/tile-angle.model';
 import { TilesState } from '../tiles/tiles.state';
-
-import { MAX_TILES_COUNT } from '../../core/settings';
 
 const PADDLE_STREAMERS_TOKEN: StateToken<PaddleStreamersStateModel> = new StateToken('paddleStreamers');
 
@@ -30,7 +29,7 @@ const defaults = {
 })
 @Injectable()
 export class PaddleStreamersState {
-  constructor(private store: Store) {}
+  constructor(private settings: SettingsService, private store: Store) {}
 
   @Selector()
   static currentAngle(state: PaddleStreamersStateModel): TileAngle {
@@ -151,10 +150,11 @@ export class PaddleStreamersState {
 
     const paddleStreamer = state.paddleStreamers[currentColor] as PaddleStreamer;
     const finishSpaceIds = this.store.selectSnapshot(TilesState.finishSpaceIds);
+    const maxTilesCount = this.settings.maxTilesCount;
     const tilesCount = this.store.selectSnapshot(TilesState.tilesCount);
     let finishedColors = state.finishedColors;
 
-    if (tilesCount === MAX_TILES_COUNT &&
+    if (tilesCount === maxTilesCount &&
       finishSpaceIds.includes(paddleStreamer.currentSpaceId as string) &&
       paddleStreamer.speed === 1
     ) {
@@ -290,7 +290,7 @@ export class PaddleStreamersState {
       return;
     }
 
-    const lastStep = state.history[state.history.length - 1];
+    const lastStep = state.history[state.history.length - 1]; // .at(-1)
     const historyAnglesCount = state.history.filter((item) => typeof item !== 'string').length;
 
     ctx.setState(produce((draft) => {

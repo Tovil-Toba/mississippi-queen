@@ -8,9 +8,10 @@ import { PaddleStreamersState } from '../store/paddle-streamers/paddle-streamers
 import { TileAngle } from '../core/tile-angle.model';
 import { TileAngleOffsets } from '../core/tile-angle-offsets.model';
 import { TileComponent } from '../shared/tile-component.model';
+import { TileSize } from '../core/tile-size.model';
 import { TilesState } from '../store/tiles/tiles.state';
 
-import { TILE_SIZE } from '../core/settings';
+import { TILE_SIZE } from '../core/default-settings';
 
 @Component({
   selector: 'app-paddle-streamer',
@@ -21,7 +22,7 @@ export class PaddleStreamerComponent implements AfterViewInit, OnDestroy, OnInit
   @Input() color?: PaddleStreamerColorEnum = PaddleStreamerColorEnum.Red; // todo: убрать по умолчанию
   @Input() spaceId!: string;
   @Input() tileAngle!: TileAngle;
-  @Input() tileSize?: number = TILE_SIZE;
+  @Input() tileSize?: TileSize = TILE_SIZE;
 
   @ViewChild('img') imgRef?: ElementRef;
 

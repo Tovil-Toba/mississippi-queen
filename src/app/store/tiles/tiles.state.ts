@@ -1,12 +1,12 @@
 import { Action, State, Selector, StateContext, StateToken } from '@ngxs/store';
 import { Injectable } from '@angular/core';
 
+import { SettingsService } from '../../core/settings.service';
 import { TileComponent } from '../../shared/tile-component.model';
 import { TileId } from '../../core/tile-id.model';
 import { Tiles } from './tiles.actions';
 import { TilesStateModel } from './tiles.model';
 
-import { MAX_TILES_COUNT } from '../../core/settings';
 import { START_TILE, START_TILE_ID } from '../../core/start-tile';
 
 const TILES_TOKEN: StateToken<TilesStateModel> = new StateToken('tiles');
@@ -23,6 +23,8 @@ const defaults = {
 })
 @Injectable()
 export class TilesState {
+  constructor(private settings: SettingsService) { }
+
   @Selector()
   static finishSpaceIds(state: TilesStateModel): string[] {
     return state.finishSpaceIds;
@@ -70,8 +72,9 @@ export class TilesState {
   @Action(Tiles.AddTriggeredId)
   addTriggeredId({ getState, patchState }: StateContext<TilesStateModel>, { payload }: Tiles.AddTriggeredId): void {
     const state = getState();
+    const maxTilesCount = this.settings.maxTilesCount;
 
-    if (state.triggeredTileIds.includes(payload) || state.triggeredTileIds.length === (MAX_TILES_COUNT - 1)) {
+    if (state.triggeredTileIds.includes(payload) || state.triggeredTileIds.length === (maxTilesCount - 1)) {
       return;
     }
 

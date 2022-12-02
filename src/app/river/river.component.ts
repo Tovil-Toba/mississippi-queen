@@ -8,16 +8,18 @@ import { PaddleStreamer } from '../store/paddle-streamers/paddle-streamers.model
 import { PaddleStreamerColorEnum } from '../shared/paddle-streamer-color.enum';
 import { PaddleStreamers } from '../store/paddle-streamers/paddle-streamers.actions';
 import { PaddleStreamersState } from '../store/paddle-streamers/paddle-streamers.state';
+import { SettingsService } from '../core/settings.service';
 import { Tile } from '../core/tile.model';
 import { Tiles } from '../store/tiles/tiles.actions';
 import { TileAngle } from '../core/tile-angle.model';
 import { TileComponent } from '../shared/tile-component.model';
 import { TileDirectionEnum } from '../core/tile-direction.enum';
 import { TileId } from '../core/tile-id.model';
+import { TileSize } from '../core/tile-size.model';
 import { TilesState } from '../store/tiles/tiles.state';
 
 import { FINISH_SPACE_INDEXES } from '../core/finish-space-indexes';
-import { MAX_TILES_COUNT, TILE_SIZE } from '../core/settings';
+import { TILE_SIZE } from '../core/default-settings';
 import { START_TILE_ANGLE, START_TILE_ID } from '../core/start-tile';
 import { TILE_ANGLE_OFFSET_MULTIPLIERS } from '../core/tile-angle-offset-multipliers';
 import { TILES_ADVANCED } from '../core/tiles-advanced';
@@ -31,13 +33,13 @@ import { TILES_BASIC } from '../core/tiles-basic';
 export class RiverComponent implements AfterViewInit, OnDestroy {
   @Input() isAdvancedRules?: boolean;
   @Input() isMoreAdvancedTiles?: boolean;
-  @Input() tileSize = TILE_SIZE;
+  @Input() tileSize: TileSize = TILE_SIZE;
 
   @Select(PaddleStreamersState.currentSpaceId) readonly currentSpaceId$!: Observable<string | undefined>;
   @Select(TilesState.tiles) readonly tiles$!: Observable<Array<TileComponent>>;
   @Select(TilesState.triggeredTilesCount) readonly triggeredTilesCount$!: Observable<number>;
 
-  tiles: Array<TileComponent> = new Array<TileComponent>();
+  tiles: Array<TileComponent> = [];
 
   private currentAngle: TileAngle = START_TILE_ANGLE;
   private currentDirection: TileDirectionEnum = TileDirectionEnum.Forward;
@@ -45,9 +47,9 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
   private currentOffsetTop = 0;
   private currentTileId: TileId = START_TILE_ID;
   private readonly ngUnsubscribe = new Subject<void>();
-  private tileIds: Array<TileId> = new Array<TileId>();
+  private tileIds: Array<TileId> = [];
 
-  constructor(private store: Store) {
+  constructor(private settings: SettingsService, private store: Store) {
     this.generateTileIds();
 
     this.triggeredTilesCount$
@@ -58,7 +60,7 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
       .subscribe((triggeredTilesCount) => {
         this.addNewTile();
 
-        if (triggeredTilesCount === (MAX_TILES_COUNT - 1)) {
+        if (triggeredTilesCount === (this.settings.maxTilesCount - 1)) {
           const timeoutId = setTimeout(() => {
           this.addFinishTile();
             clearTimeout(timeoutId);
@@ -92,7 +94,7 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
   }
 
   /*ngOnInit(): void {
-    for (let i = 1; i < MAX_TILES_COUNT; i++) {
+    for (let i = 1; i < this.settings.maxTilesCount; i++) {
       this.addNewTile();
     }
   }*/
@@ -228,7 +230,7 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
     }
 
     shuffleArray(tiles);
-    tiles = tiles.slice(0, MAX_TILES_COUNT);
+    tiles = tiles.slice(0, this.settings.maxTilesCount);
 
     tiles.forEach((tile) => {
       this.tileIds.push(tile.id);
