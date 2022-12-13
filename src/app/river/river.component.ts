@@ -133,14 +133,6 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
     }
 
     const offsetTiles = this.getOffsetTiles(tilesOffsetLeft, tilesOffsetTop);
-    const crossingTile = this.findCrossingTile(offsetTiles, tileLeft, tileTop);
-
-    if (crossingTile) {
-      console.log('Пересечение фрагментов, повтор', crossingTile);
-      this.addNewTile();
-      return;
-    }
-
     this.currentTileId = this.tileIds[0];
     const newTile: TileComponent = {
       angle,
@@ -148,6 +140,15 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
       left: tileLeft,
       top: tileTop
     };
+    const crossingTile = this.findCrossingTile(offsetTiles, newTile);
+
+    if (crossingTile) {
+      console.log('Пересечение фрагментов, повтор', crossingTile);
+      console.log('Новый фрагмент', newTile);
+      this.addNewTile();
+      return;
+    }
+
     offsetTiles.push(newTile);
     this.store.dispatch(new Tiles.Set(offsetTiles));
     this.tileIds.shift();
@@ -170,11 +171,21 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
     this.store.dispatch(new PaddleStreamers.SetCurrentColor(PaddleStreamerColorEnum.Red));
   }
 
-  private findCrossingTile(offsetTiles: Array<TileComponent>, offsetLeft: number, offsetTop: number): TileComponent | undefined {
-    return offsetTiles.find((tile) => (
-      offsetLeft > tile.left && offsetLeft < (tile.left + this.tileSize) &&
-      offsetTop > tile.top && offsetTop < (tile.top + this.tileSize)
-    ));
+  private findCrossingTile(offsetTiles: Array<TileComponent>, newTile: TileComponent): TileComponent | undefined {
+    return offsetTiles.find((tile) => {
+      const newTileRight = newTile.left + this.tileSize * Math.abs(TILE_ANGLE_OFFSET_MULTIPLIERS[newTile.angle].left);
+      const newTileBottom = newTile.top + this.tileSize * Math.abs(TILE_ANGLE_OFFSET_MULTIPLIERS[newTile.angle].top);
+      const tileRight = tile.left  + this.tileSize * Math.abs(TILE_ANGLE_OFFSET_MULTIPLIERS[tile.angle].left);
+      const tileBottom = tile.top + this.tileSize * Math.abs(TILE_ANGLE_OFFSET_MULTIPLIERS[tile.angle].top);
+
+      return (
+        newTile.left >= tile.left && newTile.left <= tileRight ||
+        newTileRight >= tile.left && newTileRight <= tileRight
+      ) && (
+        newTile.top > tile.top && newTile.top < tileBottom ||
+        newTileBottom > tile.top && newTileBottom < tileBottom
+      );
+    });
   }
 
   private getNewTileAngle(): TileAngle {
