@@ -47,6 +47,7 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
   private currentOffsetTop = 0;
   private currentTileId: TileId = START_TILE_ID;
   private readonly ngUnsubscribe = new Subject<void>();
+  private readonly twoLastAddedTileDirections: Array<TileDirectionEnum | undefined> = [undefined, undefined];
   private tileIds: Array<TileId> = [];
 
   constructor(private settings: SettingsService, private store: Store) {
@@ -152,6 +153,7 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
     offsetTiles.push(newTile);
     this.store.dispatch(new Tiles.Set(offsetTiles));
     this.tileIds.shift();
+    this.storeAddedTileDirection();
     this.currentAngle = angle;
     this.currentOffsetLeft = tileLeft;
     this.currentOffsetTop = tileTop;
@@ -188,8 +190,24 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  private isThreeSameRotationsInARow(tileDirection: TileDirectionEnum) : boolean {
+    return !!(
+      tileDirection !== TileDirectionEnum.Forward &&
+      this.twoLastAddedTileDirections[0] &&
+      this.twoLastAddedTileDirections[1] &&
+      this.twoLastAddedTileDirections[0] === this.twoLastAddedTileDirections[1] &&
+      this.twoLastAddedTileDirections[1] === tileDirection
+    );
+  }
+
   private getNewTileAngle(): TileAngle {
-    this.currentDirection = getRandomTileDirection();
+    const randomDirection = getRandomTileDirection();
+
+    if (this.isThreeSameRotationsInARow(randomDirection)) {
+      this.getNewTileAngle();
+    }
+
+    this.currentDirection = randomDirection;
     let angle: TileAngle = this.currentAngle;
 
     if (this.currentDirection === TileDirectionEnum.Left) {
@@ -257,5 +275,10 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
       left: offsetMultiplier.left * this.tileSize,
       top: offsetMultiplier.top * this.tileSize
     };
+  }
+
+  private storeAddedTileDirection(): void {
+    this.twoLastAddedTileDirections[1] = this.twoLastAddedTileDirections[0];
+    this.twoLastAddedTileDirections[0] = this.currentDirection;
   }
 }
