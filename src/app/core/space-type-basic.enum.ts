@@ -4,4 +4,5 @@ export enum SpaceTypeBasicEnum {
   Island = 'Island',
   RedDock = 'RedDock',
   StartDock = 'StartDock',
+  Water = 'Water',
 }

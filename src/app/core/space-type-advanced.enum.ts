@@ -3,4 +3,5 @@ export enum SpaceTypeAdvancedEnum {
   Driftwood = 'Driftwood',
   Island = 'Island',
   Sandbank = 'Sandbank',
+  Water = 'Water',
 }

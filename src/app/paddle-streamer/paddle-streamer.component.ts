@@ -5,6 +5,9 @@ import { Select, Store } from '@ngxs/store';
 import { PaddleStreamerColorEnum } from '../shared/paddle-streamer-color.enum';
 import { PaddleStreamers } from '../store/paddle-streamers/paddle-streamers.actions';
 import { PaddleStreamersState } from '../store/paddle-streamers/paddle-streamers.state';
+import { SpacesService } from '../shared/spaces.service';
+import { SpaceTypeAdvancedEnum } from '../core/space-type-advanced.enum';
+import { SpaceTypeBasicEnum } from '../core/space-type-basic.enum';
 import { TileAngle } from '../core/tile-angle.model';
 import { TileAngleOffsets } from '../core/tile-angle-offsets.model';
 import { TileComponent } from '../shared/tile-component.model';
@@ -47,7 +50,7 @@ export class PaddleStreamerComponent implements AfterViewInit, OnDestroy, OnInit
   private currentAngle: TileAngle = 0;
   private ngUnsubscribe = new Subject<void>();
 
-  constructor(private store: Store) {
+  constructor(private spacesService: SpacesService, private store: Store) {
     this.currentAngle$
       .pipe(
         map((currentAngle) => this.currentAngle = currentAngle),
@@ -113,8 +116,22 @@ export class PaddleStreamerComponent implements AfterViewInit, OnDestroy, OnInit
     this.store.dispatch(new PaddleStreamers.SetForwardSpaceId(undefined));
 
     elements.forEach((element) => {
-      if (element.id.includes('|') && element.id !== this.spaceId) {
-        this.store.dispatch(new PaddleStreamers.SetForwardSpaceId(element.id));
+      const spaceId = element.id.includes('|') && element.id;
+      if (!spaceId) {
+        return;
+      }
+
+      const spaceType = this.spacesService.getSpaceType(spaceId);
+      if (!spaceId && spaceId === this.spaceId) {
+        return;
+      }
+
+      /*const currentSpaceType = this.spacesService.getSpaceType(this.spaceId);
+      console.log('Current space type:', currentSpaceType);
+      console.log('Forward space type:', spaceType);*/
+
+      if (spaceType && spaceType !== SpaceTypeBasicEnum.Island && spaceType !== SpaceTypeAdvancedEnum.Island) {
+        this.store.dispatch(new PaddleStreamers.SetForwardSpaceId(spaceId));
       }
     });
   }
