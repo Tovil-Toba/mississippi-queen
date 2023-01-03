@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { map, Observable, Subject, takeUntil} from 'rxjs';
+import { distinctUntilChanged, map, Observable, Subject, takeUntil } from 'rxjs';
 import { Select, Store } from '@ngxs/store';
 
 import { PaddleStreamerColorEnum } from '../shared/paddle-streamer-color.enum';
@@ -22,21 +22,19 @@ import { TILE_SIZE } from '../core/default-settings';
   styleUrls: ['./paddle-streamer.component.scss']
 })
 export class PaddleStreamerComponent implements AfterViewInit, OnDestroy, OnInit {
-  @Input() color?: PaddleStreamerColorEnum = PaddleStreamerColorEnum.Red; // todo: убрать по умолчанию
+  @Input() color!: PaddleStreamerColorEnum;
   @Input() spaceId!: string;
   @Input() tileAngle!: TileAngle;
   @Input() tileSize?: TileSize = TILE_SIZE;
 
   @ViewChild('img') imgRef?: ElementRef;
 
-  @Select(PaddleStreamersState.currentAngle) private readonly currentAngle$!: Observable<TileAngle>;
-  @Select(PaddleStreamersState.scanTrigger) private readonly scanTrigger$!: Observable<number>;
+  @Select(PaddleStreamersState.currentColor) private readonly currentColor$!: Observable<PaddleStreamerColorEnum | undefined>;
 
-  angle: TileAngle = 0;
   centerLeft = 0;
   centerTop = 0;
 
-  tile?: TileComponent;
+  private tile?: TileComponent;
 
   private readonly angleOffsetMultipliers: TileAngleOffsets = {
     0: { left: 0, top: -1.75 },
@@ -50,24 +48,7 @@ export class PaddleStreamerComponent implements AfterViewInit, OnDestroy, OnInit
   private currentAngle: TileAngle = 0;
   private ngUnsubscribe = new Subject<void>();
 
-  constructor(private spacesService: SpacesService, private store: Store) {
-    this.currentAngle$
-      .pipe(
-        map((currentAngle) => this.currentAngle = currentAngle),
-        takeUntil(this.ngUnsubscribe)
-      )
-      .subscribe()
-    ;
-
-    this.scanTrigger$
-      .pipe(
-        // filter((scanTrigger) => scanTrigger > 0),
-        takeUntil(this.ngUnsubscribe)
-      )
-      .subscribe(() => {
-        this.scan();
-      });
-  }
+  constructor(private spacesService: SpacesService, private store: Store) { }
 
   get boatAngle(): number {
     return this.currentAngle - this.tileAngle;
@@ -91,6 +72,26 @@ export class PaddleStreamerComponent implements AfterViewInit, OnDestroy, OnInit
       .selectOnce(TilesState.tile)
       .pipe(map((filterFn) => this.tile = filterFn(this.spaceId)))
       .subscribe()
+    ;
+
+    this.store
+      .select(PaddleStreamersState.currentAngle)
+      .pipe(
+        map((filterFn) => this.currentAngle = filterFn(this.color)),
+        takeUntil(this.ngUnsubscribe)
+      )
+      .subscribe()
+    ;
+
+    this.store
+      .select(PaddleStreamersState.scanTrigger)
+      .pipe(
+        map(filterFn => filterFn(this.color)),
+        distinctUntilChanged(),
+        takeUntil(this.ngUnsubscribe)
+      ).subscribe(() => {
+        this.scan();
+      })
     ;
   }
 
@@ -121,8 +122,8 @@ export class PaddleStreamerComponent implements AfterViewInit, OnDestroy, OnInit
         return;
       }
 
-      const spaceType = this.spacesService.getSpaceType(spaceId);
-      if (!spaceId && spaceId === this.spaceId) {
+      const spaceType: SpaceTypeBasicEnum | SpaceTypeAdvancedEnum | undefined = this.spacesService.getSpaceType(spaceId);
+      if (!spaceType && spaceId === this.spaceId) {
         return;
       }
 
@@ -130,7 +131,7 @@ export class PaddleStreamerComponent implements AfterViewInit, OnDestroy, OnInit
       console.log('Current space type:', currentSpaceType);
       console.log('Forward space type:', spaceType);*/
 
-      if (spaceType && spaceType !== SpaceTypeBasicEnum.Island && spaceType !== SpaceTypeAdvancedEnum.Island) {
+      if (spaceType !== SpaceTypeBasicEnum.Island && spaceType !== SpaceTypeAdvancedEnum.Island) {
         this.store.dispatch(new PaddleStreamers.SetForwardSpaceId(spaceId));
       }
     });

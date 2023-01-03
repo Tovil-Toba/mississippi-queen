@@ -1,7 +1,6 @@
 <app-tile
   *ngFor="let tile of tiles; let index=index;"
   [angle]="tile.angle"
-  [currentSpaceId]="currentSpaceId$ | async"
   [id]="tile.id"
   [index]="index"
   [size]="tileSize"

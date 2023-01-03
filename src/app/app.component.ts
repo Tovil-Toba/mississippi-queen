@@ -3,7 +3,9 @@ import { Observable } from 'rxjs';
 import { PrimeNGConfig } from 'primeng/api';
 import { Select, Store } from '@ngxs/store';
 
+import { MaxTilesCount } from './core/max-tiles-count.model';
 import { PaddleStreamers } from './store/paddle-streamers/paddle-streamers.actions';
+import { PaddleStreamersCount } from './core/paddle-streamers-count.model';
 import { SettingsService } from './core/settings.service';
 import { SpaceIndex } from './core/space-index.model';
 import { SpaceTypeAdvancedEnum } from './core/space-type-advanced.enum';
@@ -34,8 +36,12 @@ export class AppComponent implements OnInit {
     private store: Store
   ) { }
 
-  get maxTilesCount(): number {
+  get maxTilesCount(): MaxTilesCount {
     return this.settings.maxTilesCount;
+  }
+
+  get paddleStreamersCount(): PaddleStreamersCount {
+    return this.settings.paddleStreamersCount;
   }
 
   get tileSize(): TileSize {

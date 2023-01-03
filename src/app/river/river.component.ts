@@ -4,10 +4,8 @@ import { Select, Store } from '@ngxs/store';
 
 import { Coordinates } from '../core/coordinates.model';
 import { getRandomTileDirection, shuffleArray } from '../shared/utils';
-import { PaddleStreamer } from '../store/paddle-streamers/paddle-streamers.model';
-import { PaddleStreamerColorEnum } from '../shared/paddle-streamer-color.enum';
-import { PaddleStreamers } from '../store/paddle-streamers/paddle-streamers.actions';
-import { PaddleStreamersState } from '../store/paddle-streamers/paddle-streamers.state';
+import { PaddleStreamersCount } from '../core/paddle-streamers-count.model';
+import { PaddleStreamersService } from '../core/paddle-streamers.service';
 import { SettingsService } from '../core/settings.service';
 import { Tile } from '../core/tile.model';
 import { Tiles } from '../store/tiles/tiles.actions';
@@ -19,7 +17,7 @@ import { TileSize } from '../core/tile-size.model';
 import { TilesState } from '../store/tiles/tiles.state';
 
 import { FINISH_SPACE_INDEXES } from '../core/finish-space-indexes';
-import { TILE_SIZE } from '../core/default-settings';
+import { PADDLE_STREAMERS_COUNT, TILE_SIZE } from '../core/default-settings';
 import { START_TILE_ANGLE, START_TILE_ID } from '../core/start-tile';
 import { TILE_ANGLE_OFFSET_MULTIPLIERS } from '../core/tile-angle-offset-multipliers';
 import { TILES_ADVANCED } from '../core/tiles-advanced';
@@ -33,9 +31,9 @@ import { TILES_BASIC } from '../core/tiles-basic';
 export class RiverComponent implements AfterViewInit, OnDestroy {
   @Input() isAdvancedRules?: boolean;
   @Input() isMoreAdvancedTiles?: boolean;
+  @Input() paddleStreamersCount: PaddleStreamersCount = PADDLE_STREAMERS_COUNT;
   @Input() tileSize: TileSize = TILE_SIZE;
 
-  @Select(PaddleStreamersState.currentSpaceId) readonly currentSpaceId$!: Observable<string | undefined>;
   @Select(TilesState.tiles) readonly tiles$!: Observable<Array<TileComponent>>;
   @Select(TilesState.triggeredTilesCount) readonly triggeredTilesCount$!: Observable<number>;
 
@@ -50,7 +48,11 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
   private readonly twoLastAddedTileDirections: Array<TileDirectionEnum | undefined> = [undefined, undefined];
   private tileIds: Array<TileId> = [];
 
-  constructor(private settings: SettingsService, private store: Store) {
+  constructor(
+    private paddleStreamersService: PaddleStreamersService,
+    private settings: SettingsService,
+    private store: Store
+  ) {
     this.generateTileIds();
 
     this.triggeredTilesCount$
@@ -82,7 +84,7 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     const timeoutId = setTimeout(() => {
       this.addFirstTile();
-      this.addPaddleStreamer();
+      this.paddleStreamersService.initPaddleStreamers(this.paddleStreamersCount);
       clearTimeout(timeoutId);
     }, 1000);
     // TODO: в будущем и пароходы и первый фрагмент будут появляться уже после выбора настроек,
@@ -157,20 +159,6 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
     this.currentAngle = angle;
     this.currentOffsetLeft = tileLeft;
     this.currentOffsetTop = tileTop;
-  }
-
-  private addPaddleStreamer(): void {
-    const paddleStreamer: PaddleStreamer = {
-      coal: 6,
-      color: PaddleStreamerColorEnum.Red,
-      currentAngle: 0,
-      currentSpaceId: 'A0|2',
-      // forwardSpaceId: '',
-      scanTrigger: 0,
-      speed: 1
-    };
-    this.store.dispatch(new PaddleStreamers.Add(paddleStreamer));
-    this.store.dispatch(new PaddleStreamers.SetCurrentColor(PaddleStreamerColorEnum.Red));
   }
 
   private findCrossingTile(offsetTiles: Array<TileComponent>, newTile: TileComponent): TileComponent | undefined {

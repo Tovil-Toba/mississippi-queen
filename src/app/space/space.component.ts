@@ -1,8 +1,9 @@
-import { Component, Input } from '@angular/core';
-import { Observable } from 'rxjs';
-import { Select, Store } from '@ngxs/store';
+import { Component, Input, OnDestroy } from '@angular/core';
+import { map, Observable, Subject, takeUntil } from 'rxjs';
+import { Store } from '@ngxs/store';
 import { TileSize } from '../core/tile-size.model';
 
+import { PaddleStreamer } from '../core/paddle-streamer.model';
 import { PaddleStreamersState } from '../store/paddle-streamers/paddle-streamers.state';
 import { SpaceIndex } from '../core/space-index.model';
 import { TileAngle } from '../core/tile-angle.model';
@@ -15,21 +16,30 @@ import { TILE_SIZE } from '../core/default-settings';
   templateUrl: './space.component.html',
   styleUrls: ['./space.component.scss']
 })
-export class SpaceComponent {
+export class SpaceComponent implements OnDestroy {
   @Input() centerLeft!: number;
   @Input() centerTop!: number;
-  @Input() currentSpaceId?: string | null;
   @Input() id!: string;
   @Input() index!: SpaceIndex;
   @Input() tileAngle!: TileAngle;
   @Input() tileId!: TileId;
   @Input() tileSize?: TileSize = TILE_SIZE;
 
-  // @Select(PaddleStreamersState.currentSpaceId) currentSpaceId$!: Observable<string | undefined>;
   // isHighlightHidden = true;
   isHighlightVisible?: boolean;
+  paddleStreamer$?: Observable<PaddleStreamer | undefined>;
 
-  constructor(private store: Store) { }
+  private ngUnsubscribe = new Subject<void>();
+
+  constructor(private store: Store) {
+    this.paddleStreamer$ = store
+      .select(PaddleStreamersState.paddleStreamer)
+      .pipe(
+        map(filterFn => filterFn(this.id)),
+        takeUntil(this.ngUnsubscribe)
+      )
+    ;
+  }
 
   get size(): number {
     return 0.1375 * (this.tileSize as number);
@@ -41,6 +51,11 @@ export class SpaceComponent {
 
   get highlightWidth(): number {
     return 0.24 * (this.tileSize as number);
+  }
+
+  ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
   }
 
   setCurrentSpaceId(): void {

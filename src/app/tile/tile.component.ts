@@ -19,7 +19,6 @@ import { TILE_SIZE } from '../core/default-settings';
 })
 export class TileComponent implements AfterViewInit, OnInit {
   @Input() angle: TileAngle = 0;
-  @Input() currentSpaceId?: string | null;
   @Input() id!: TileId;
   @Input() index!: number;
   @Input() left?: number = 0;

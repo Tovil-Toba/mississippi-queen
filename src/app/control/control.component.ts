@@ -4,7 +4,7 @@ import { map, Observable, Subject, takeUntil } from 'rxjs';
 import { Select, Store } from '@ngxs/store';
 
 import { getTileIdBySpaceId } from '../shared/utils';
-import { PaddleStreamer } from '../store/paddle-streamers/paddle-streamers.model';
+import { PaddleStreamer } from '../core/paddle-streamer.model';
 import { PaddleStreamers } from '../store/paddle-streamers/paddle-streamers.actions';
 import { PaddleStreamersState } from '../store/paddle-streamers/paddle-streamers.state';
 import { Speed } from '../core/speed.model';

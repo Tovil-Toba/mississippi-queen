@@ -61,7 +61,10 @@
           (scroll)="onScroll()"
         >
           <div class="absolute h-full">
-            <app-river [tileSize]="tileSize"></app-river>
+            <app-river
+              [paddleStreamersCount]="paddleStreamersCount"
+              [tileSize]="tileSize"
+            ></app-river>
           </div>
         </div>
       </div>

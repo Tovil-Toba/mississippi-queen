@@ -3,8 +3,9 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { produce } from 'immer';
 
-import { PaddleStreamer, PaddleStreamersStateModel } from './paddle-streamers.model';
+import { PaddleStreamer } from '../../core/paddle-streamer.model';
 import { PaddleStreamers } from './paddle-streamers.actions';
+import { PaddleStreamersStateModel } from './paddle-streamers.model'; // PaddleStreamer
 import { PaddleStreamerColorEnum } from '../../shared/paddle-streamer-color.enum';
 import { SettingsService } from '../../core/settings.service';
 import { Speed } from '../../core/speed.model';
@@ -32,18 +33,20 @@ export class PaddleStreamersState {
   constructor(private settings: SettingsService, private store: Store) {}
 
   @Selector()
-  static currentAngle(state: PaddleStreamersStateModel): TileAngle {
-    return state.currentColor ? state.paddleStreamers[state.currentColor]?.currentAngle ?? 0 : 0;
+  static currentAngle(state: PaddleStreamersStateModel): (color: PaddleStreamerColorEnum) => TileAngle {
+    return (color: PaddleStreamerColorEnum): TileAngle => {
+      return state.paddleStreamers[color]?.currentAngle ?? 0;
+    };
+  }
+
+  @Selector()
+  static currentColor(state: PaddleStreamersStateModel): PaddleStreamerColorEnum | undefined {
+    return state.currentColor;
   }
 
   @Selector()
   static currentPaddleStreamer(state: PaddleStreamersStateModel): (PaddleStreamer | undefined) {
     return state.currentColor ? state.paddleStreamers[state.currentColor] : undefined;
-  }
-
-  @Selector()
-  static currentSpaceId(state: PaddleStreamersStateModel): (string | undefined) {
-    return state.currentColor ? state.paddleStreamers[state.currentColor]?.currentSpaceId : undefined;
   }
 
   @Selector()
@@ -84,8 +87,11 @@ export class PaddleStreamersState {
   }
 
   @Selector()
-  static scanTrigger(state: PaddleStreamersStateModel): number {
-    return state.currentColor ? state.paddleStreamers[state.currentColor]?.scanTrigger ?? 0 : 0;
+  static scanTrigger(state: PaddleStreamersStateModel): (color: PaddleStreamerColorEnum) => number {
+    return (color: PaddleStreamerColorEnum): number => {
+      const paddleStreamer = state.paddleStreamers[color] as PaddleStreamer;
+      return paddleStreamer.scanTrigger;
+    };
   }
 
   @Action(PaddleStreamers.Add)
@@ -95,6 +101,7 @@ export class PaddleStreamersState {
   ): void {
     ctx.setState(produce((draft) => {
       draft.paddleStreamers[payload.color] = payload;
+      draft.order.push(payload.color);
     }));
   }
 
@@ -148,10 +155,14 @@ export class PaddleStreamersState {
       return;
     }
 
-    const paddleStreamer = state.paddleStreamers[currentColor] as PaddleStreamer;
+    const paddleStreamers = state.paddleStreamers;
+    const paddleStreamer = paddleStreamers[currentColor] as PaddleStreamer;
     const finishSpaceIds = this.store.selectSnapshot(TilesState.finishSpaceIds);
     const maxTilesCount = this.settings.maxTilesCount;
     const tilesCount = this.store.selectSnapshot(TilesState.tilesCount);
+    let order = state.order;
+    const currentColorOrderIndex = order.indexOf(currentColor);
+    const nextColor = order[currentColorOrderIndex + 1] ?? order[0];
     let finishedColors = state.finishedColors;
 
     if (tilesCount === maxTilesCount &&
@@ -159,13 +170,17 @@ export class PaddleStreamersState {
       paddleStreamer.speed === 1
     ) {
       finishedColors = [...finishedColors, currentColor];
+      order = order.splice(currentColorOrderIndex, 1);
+      // delete paddleStreamers[currentColor];
     }
 
     ctx.patchState({
+      currentColor: nextColor,
       finishedColors,
       history: [],
       initialSpeed: undefined,
-      isFreeSpeedChangeUsed: false
+      isFreeSpeedChangeUsed: false,
+      order
     });
   }
 

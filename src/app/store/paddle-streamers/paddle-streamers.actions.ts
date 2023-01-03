@@ -1,4 +1,4 @@
-import { PaddleStreamer } from './paddle-streamers.model';
+import { PaddleStreamer } from '../../core/paddle-streamer.model';
 import { PaddleStreamerColorEnum } from '../../shared/paddle-streamer-color.enum';
 import { TileAngle } from '../../core/tile-angle.model';
 
