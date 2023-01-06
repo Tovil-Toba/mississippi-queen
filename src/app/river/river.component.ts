@@ -1,11 +1,11 @@
-import { AfterViewInit, Component, Input, OnDestroy } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { filter, map, Observable, Subject, takeUntil } from 'rxjs';
 import { Select, Store } from '@ngxs/store';
 
 import { Coordinates } from '../core/coordinates.model';
 import { getRandomTileDirection, shuffleArray } from '../shared/utils';
-import { PaddleStreamersCount } from '../core/paddle-streamers-count.model';
-import { PaddleStreamersService } from '../core/paddle-streamers.service';
+import { PaddleSteamersCount } from '../core/paddle-steamers-count.model';
+import { PaddleSteamersService } from '../core/paddle-steamers.service';
 import { SettingsService } from '../core/settings.service';
 import { Tile } from '../core/tile.model';
 import { Tiles } from '../store/tiles/tiles.actions';
@@ -17,7 +17,7 @@ import { TileSize } from '../core/tile-size.model';
 import { TilesState } from '../store/tiles/tiles.state';
 
 import { FINISH_SPACE_INDEXES } from '../core/finish-space-indexes';
-import { PADDLE_STREAMERS_COUNT, TILE_SIZE } from '../core/default-settings';
+import { PADDLE_STEAMERS_COUNT, TILE_SIZE } from '../core/default-settings';
 import { START_TILE_ANGLE, START_TILE_ID } from '../core/start-tile';
 import { TILE_ANGLE_OFFSET_MULTIPLIERS } from '../core/tile-angle-offset-multipliers';
 import { TILES_ADVANCED } from '../core/tiles-advanced';
@@ -31,7 +31,7 @@ import { TILES_BASIC } from '../core/tiles-basic';
 export class RiverComponent implements AfterViewInit, OnDestroy {
   @Input() isAdvancedRules?: boolean;
   @Input() isMoreAdvancedTiles?: boolean;
-  @Input() paddleStreamersCount: PaddleStreamersCount = PADDLE_STREAMERS_COUNT;
+  @Input() paddleSteamersCount: PaddleSteamersCount = PADDLE_STEAMERS_COUNT;
   @Input() tileSize: TileSize = TILE_SIZE;
 
   @Select(TilesState.tiles) readonly tiles$!: Observable<Array<TileComponent>>;
@@ -49,7 +49,7 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
   private tileIds: Array<TileId> = [];
 
   constructor(
-    private paddleStreamersService: PaddleStreamersService,
+    private paddleSteamersService: PaddleSteamersService,
     private settings: SettingsService,
     private store: Store
   ) {
@@ -84,7 +84,7 @@ export class RiverComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     const timeoutId = setTimeout(() => {
       this.addFirstTile();
-      this.paddleStreamersService.initPaddleStreamers(this.paddleStreamersCount);
+      this.paddleSteamersService.initPaddleSteamers(this.paddleSteamersCount);
       clearTimeout(timeoutId);
     }, 1000);
     // TODO: в будущем и пароходы и первый фрагмент будут появляться уже после выбора настроек,

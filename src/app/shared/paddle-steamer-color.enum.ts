@@ -1,4 +1,4 @@
-export enum PaddleStreamerColorEnum {
+export enum PaddleSteamerColorEnum {
   Black = 'Black',
   Blue = 'Blue',
   Green = 'Green',

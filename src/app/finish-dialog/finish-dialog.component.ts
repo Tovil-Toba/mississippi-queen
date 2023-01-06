@@ -2,7 +2,7 @@ import { Component, OnDestroy } from '@angular/core';
 import { map, Observable, Subject, takeUntil } from 'rxjs';
 import { Select } from '@ngxs/store';
 
-import { PaddleStreamersState } from '../store/paddle-streamers/paddle-streamers.state';
+import { PaddleSteamersState } from '../store/paddle-steamers/paddle-steamers.state';
 
 @Component({
   selector: 'app-finish-dialog',
@@ -10,7 +10,7 @@ import { PaddleStreamersState } from '../store/paddle-streamers/paddle-streamers
   styleUrls: ['./finish-dialog.component.scss']
 })
 export class FinishDialogComponent implements OnDestroy {
-  @Select(PaddleStreamersState.finishedColors) readonly finishedColors$!: Observable<string[]>;
+  @Select(PaddleSteamersState.finishedColors) readonly finishedColors$!: Observable<string[]>;
 
   isVisible = true;
   place?: number;

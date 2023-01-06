@@ -2,7 +2,7 @@ import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
 import { Store } from '@ngxs/store';
 
 import { Coordinates } from '../core/coordinates.model';
-import { PaddleStreamers } from '../store/paddle-streamers/paddle-streamers.actions';
+import { PaddleSteamers } from '../store/paddle-steamers/paddle-steamers.actions';
 import { SpaceComponent } from '../shared/space-component.model';
 import { SpaceIndex } from '../core/space-index.model';
 import { TileAngle } from '../core/tile-angle.model';
@@ -31,7 +31,7 @@ export class TileComponent implements AfterViewInit, OnInit {
   constructor(private store: Store) { }
 
   ngAfterViewInit(): void {
-    this.store.dispatch(new PaddleStreamers.TriggerScan());
+    this.store.dispatch(new PaddleSteamers.TriggerScan());
   }
 
   ngOnInit(): void {

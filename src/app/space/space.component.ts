@@ -3,8 +3,8 @@ import { map, Observable, Subject, takeUntil } from 'rxjs';
 import { Store } from '@ngxs/store';
 import { TileSize } from '../core/tile-size.model';
 
-import { PaddleStreamer } from '../core/paddle-streamer.model';
-import { PaddleStreamersState } from '../store/paddle-streamers/paddle-streamers.state';
+import { PaddleSteamer } from '../core/paddle-steamer.model';
+import { PaddleSteamersState } from '../store/paddle-steamers/paddle-steamers.state';
 import { SpaceIndex } from '../core/space-index.model';
 import { TileAngle } from '../core/tile-angle.model';
 import { TileId } from '../core/tile-id.model';
@@ -27,13 +27,13 @@ export class SpaceComponent implements OnDestroy {
 
   // isHighlightHidden = true;
   isHighlightVisible?: boolean;
-  paddleStreamer$?: Observable<PaddleStreamer | undefined>;
+  paddleSteamer$?: Observable<PaddleSteamer | undefined>;
 
   private ngUnsubscribe = new Subject<void>();
 
   constructor(private store: Store) {
-    this.paddleStreamer$ = store
-      .select(PaddleStreamersState.paddleStreamer)
+    this.paddleSteamer$ = store
+      .select(PaddleSteamersState.paddleSteamer)
       .pipe(
         map(filterFn => filterFn(this.id)),
         takeUntil(this.ngUnsubscribe)
@@ -60,6 +60,6 @@ export class SpaceComponent implements OnDestroy {
 
   setCurrentSpaceId(): void {
     // закомментировано, чтобы пользователь вручную управлял пароходиком. выпилить в будущем
-    // new PaddleStreamers.SetCurrentSpaceId(this.id);
+    // new PaddleSteamers.SetCurrentSpaceId(this.id);
   }
 }

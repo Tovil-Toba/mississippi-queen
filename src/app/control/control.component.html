@@ -1,7 +1,7 @@
-<ng-container *ngIf="paddleStreamer">
+<ng-container *ngIf="paddleSteamer">
   <div class="flex align-items-center mb-1">
     <i class="fa-solid fa-gauge-high"></i>
-    <span class="ml-2 mr-3">Скорость: <span class="font-medium">{{ paddleStreamer.speed }}</span></span>
+    <span class="ml-2 mr-3">Скорость: <span class="font-medium">{{ paddleSteamer.speed }}</span></span>
     <span class="inline-flex">
       <span class="flex flex-column h-3rem">
         <button
@@ -12,8 +12,8 @@
           class="p-button-lg flex-auto p-0 w-3rem border-noround-bottom"
           (click)="incrementSpeed()"
           [disabled]="history.length > 0 ||
-            paddleStreamer.speed === 6 ||
-            ((isFreeSpeedChangeUsed$ | async) && paddleStreamer.coal === 0 && (paddleStreamer.speed + 1) !== (initialSpeed$ | async))
+            paddleSteamer.speed === 6 ||
+            ((isFreeSpeedChangeUsed$ | async) && paddleSteamer.coal === 0 && (paddleSteamer.speed + 1) !== (initialSpeed$ | async))
           "
         ></button>
         <button
@@ -25,8 +25,8 @@
           (click)="decrementSpeed()"
           [disabled]="
             history.length > 0 ||
-            paddleStreamer.speed === 1 ||
-            ((isFreeSpeedChangeUsed$ | async) && paddleStreamer.coal === 0 && (paddleStreamer.speed - 1) !== (initialSpeed$ | async))
+            paddleSteamer.speed === 1 ||
+            ((isFreeSpeedChangeUsed$ | async) && paddleSteamer.coal === 0 && (paddleSteamer.speed - 1) !== (initialSpeed$ | async))
           "
         ></button>
       </span>
@@ -34,7 +34,7 @@
   </div>
   <div class="field">
     <i class="fa-solid fa-fire"></i>
-    <span class="ml-2">Уголь: <span class="font-medium" [class.text-red-600]="!paddleStreamer.coal">{{ paddleStreamer.coal }}</span></span>
+    <span class="ml-2">Уголь: <span class="font-medium" [class.text-red-600]="!paddleSteamer.coal">{{ paddleSteamer.coal }}</span></span>
   </div>
   <div class="field">
     <i class="fa-solid fa-angles-right"></i>
@@ -63,7 +63,7 @@
       icon="fa-solid fa-rotate-left"
       type="button"
       class="p-button-lg h-3rem w-3rem mr-3"
-      [disabled]="historyAnglesCount && !paddleStreamer.coal"
+      [disabled]="historyAnglesCount && !paddleSteamer.coal"
       (click)="rotateLeft()"
       pTooltip="Повернуть налево"
     ></button>
@@ -74,7 +74,7 @@
       icon="fa-solid fa-arrow-up"
       type="button"
       class="p-button-lg h-3rem w-3rem mr-3"
-      [disabled]="!paddleStreamer.forwardSpaceId || paddleStreamer.speed === historySpacesCount"
+      [disabled]="!paddleSteamer.forwardSpaceId || paddleSteamer.speed === historySpacesCount"
       (click)="moveForward()"
       pTooltip="Двигаться вперед"
     ></button>
@@ -85,7 +85,7 @@
       icon="fa-solid fa-rotate-right"
       type="button"
       class="p-button-lg h-3rem w-3rem"
-      [disabled]="historyAnglesCount && !paddleStreamer.coal"
+      [disabled]="historyAnglesCount && !paddleSteamer.coal"
       (click)="rotateRight()"
       pTooltip="Повернуть направо"
       tooltipPosition="left"
@@ -108,7 +108,7 @@
       icon="fa-solid fa-check"
       type="button"
       class="p-button-lg h-3rem w-3rem p-button-success"
-      [disabled]="historySpacesCount !== paddleStreamer.speed"
+      [disabled]="historySpacesCount !== paddleSteamer.speed"
       (click)="confirmEndTurn($event)"
     ></button>
     <p-confirmPopup></p-confirmPopup>

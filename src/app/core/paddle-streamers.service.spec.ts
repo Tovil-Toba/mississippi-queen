@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { PaddleStreamersService } from './paddle-streamers.service';
+import { PaddleSteamersService } from './paddle-steamers.service';
 
-describe('PaddleStreamersService', () => {
-  let service: PaddleStreamersService;
+describe('PaddleSteamersService', () => {
+  let service: PaddleSteamersService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(PaddleStreamersService);
+    service = TestBed.inject(PaddleSteamersService);
   });
 
   it('should be created', () => {

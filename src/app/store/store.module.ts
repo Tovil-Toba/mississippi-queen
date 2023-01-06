@@ -5,7 +5,7 @@ import { NgxsModule } from '@ngxs/store';
 import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
 
 import { environment as env } from '../../environments/environment';
-import { PaddleStreamersState } from './paddle-streamers/paddle-streamers.state';
+import { PaddleSteamersState } from './paddle-steamers/paddle-steamers.state';
 import { TilesState } from './tiles/tiles.state';
 
 @NgModule({
@@ -15,7 +15,7 @@ import { TilesState } from './tiles/tiles.state';
     NgxsReduxDevtoolsPluginModule.forRoot({ disabled: env.production }),
     NgxsModule.forRoot(
       [
-        PaddleStreamersState,
+        PaddleSteamersState,
         TilesState,
       ],
       {

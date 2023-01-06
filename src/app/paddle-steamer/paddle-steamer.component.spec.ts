@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PaddleStreamerComponent } from './paddle-streamer.component';
+import { PaddleSteamerComponent } from './paddle-steamer.component';
 
-describe('PaddleStreamerComponent', () => {
-  let component: PaddleStreamerComponent;
-  let fixture: ComponentFixture<PaddleStreamerComponent>;
+describe('PaddleSteamerComponent', () => {
+  let component: PaddleSteamerComponent;
+  let fixture: ComponentFixture<PaddleSteamerComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PaddleStreamerComponent ]
+      declarations: [ PaddleSteamerComponent ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(PaddleStreamerComponent);
+    fixture = TestBed.createComponent(PaddleSteamerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

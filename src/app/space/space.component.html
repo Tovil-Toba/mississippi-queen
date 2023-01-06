@@ -11,13 +11,13 @@
 >
   <!-- border-1 border-red-900 -->
   <!--<span class="text-xs text-white font-bold m-auto absolute">{{id}}</span>-->
-  <app-paddle-streamer
-    *ngIf="(paddleStreamer$ | async) as paddleStreamer"
-    [color]="paddleStreamer.color"
+  <app-paddle-steamer
+    *ngIf="(paddleSteamer$ | async) as paddleSteamer"
+    [color]="paddleSteamer.color"
     [spaceId]="id"
     [tileAngle]="tileAngle"
     [tileSize]="tileSize"
-  ></app-paddle-streamer>
+  ></app-paddle-steamer>
 </div>
 <img
   src="assets/images/space-highlight.png"

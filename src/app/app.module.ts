@@ -12,7 +12,7 @@ import { AppComponent } from './app.component';
 import { ControlComponent } from './control/control.component';
 import { FinishDialogComponent } from './finish-dialog/finish-dialog.component';
 import { NgxsStoreModule } from './store/store.module';
-import { PaddleStreamerComponent } from './paddle-streamer/paddle-streamer.component';
+import { PaddleSteamerComponent } from './paddle-steamer/paddle-steamer.component';
 import { RiverComponent } from './river/river.component';
 import { SpaceComponent } from './space/space.component';
 import { TileComponent } from './tile/tile.component';
@@ -22,7 +22,7 @@ import { TileComponent } from './tile/tile.component';
     AppComponent,
     ControlComponent,
     FinishDialogComponent,
-    PaddleStreamerComponent,
+    PaddleSteamerComponent,
     RiverComponent,
     SpaceComponent,
     TileComponent,

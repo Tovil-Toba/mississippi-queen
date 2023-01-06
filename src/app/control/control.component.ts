@@ -4,9 +4,9 @@ import { map, Observable, Subject, takeUntil } from 'rxjs';
 import { Select, Store } from '@ngxs/store';
 
 import { getTileIdBySpaceId } from '../shared/utils';
-import { PaddleStreamer } from '../core/paddle-streamer.model';
-import { PaddleStreamers } from '../store/paddle-streamers/paddle-streamers.actions';
-import { PaddleStreamersState } from '../store/paddle-streamers/paddle-streamers.state';
+import { PaddleSteamer } from '../core/paddle-steamer.model';
+import { PaddleSteamers } from '../store/paddle-steamers/paddle-steamers.actions';
+import { PaddleSteamersState } from '../store/paddle-steamers/paddle-steamers.state';
 import { Speed } from '../core/speed.model';
 import { Tiles } from '../store/tiles/tiles.actions';
 import { TileAngle } from '../core/tile-angle.model';
@@ -19,24 +19,24 @@ import { TilesState } from '../store/tiles/tiles.state';
   styleUrls: ['./control.component.scss']
 })
 export class ControlComponent implements OnDestroy {
-  @Select(PaddleStreamersState.initialSpeed) readonly initialSpeed$!: Observable<Speed | undefined>;
-  @Select(PaddleStreamersState.isFreeSpeedChangeUsed) readonly isFreeSpeedChangeUsed$!: Observable<boolean | undefined>;
+  @Select(PaddleSteamersState.initialSpeed) readonly initialSpeed$!: Observable<Speed | undefined>;
+  @Select(PaddleSteamersState.isFreeSpeedChangeUsed) readonly isFreeSpeedChangeUsed$!: Observable<boolean | undefined>;
 
-  @Select(PaddleStreamersState.history) private readonly history$!: Observable<Array<TileAngle | string>>;
-  @Select(PaddleStreamersState.currentPaddleStreamer) private readonly currentPaddleStreamer$!: Observable<PaddleStreamer | undefined>;
+  @Select(PaddleSteamersState.history) private readonly history$!: Observable<Array<TileAngle | string>>;
+  @Select(PaddleSteamersState.currentPaddleSteamer) private readonly currentPaddleSteamer$!: Observable<PaddleSteamer | undefined>;
   @Select(TilesState.triggeredTileIds) private readonly triggeredTileIds$!: Observable<Array<TileId>>;
 
   history: Array<TileAngle | string> = [];
-  paddleStreamer?: PaddleStreamer;
+  paddleSteamer?: PaddleSteamer;
 
   private readonly ngUnsubscribe = new Subject<void>();
   private triggeredTileIds: Array<TileId> = [];
 
   constructor(private confirmationService: ConfirmationService, private store: Store) {
-    this.currentPaddleStreamer$
+    this.currentPaddleSteamer$
       .pipe(
-        // distinct((paddleStreamer) => paddleStreamer?.color),
-        map((paddleStreamer) => this.paddleStreamer = paddleStreamer),
+        // distinct((paddleSteamer) => paddleSteamer?.color),
+        map((paddleSteamer) => this.paddleSteamer = paddleSteamer),
         takeUntil(this.ngUnsubscribe)
       )
       .subscribe()
@@ -68,7 +68,7 @@ export class ControlComponent implements OnDestroy {
   }
 
   get movementPoints(): number {
-    return this.paddleStreamer ? this.paddleStreamer.speed - this.historySpacesCount : 1;
+    return this.paddleSteamer ? this.paddleSteamer.speed - this.historySpacesCount : 1;
   }
 
   confirmEndTurn(event: Event): void {
@@ -85,11 +85,11 @@ export class ControlComponent implements OnDestroy {
   }
 
   decrementSpeed(): void {
-    this.store.dispatch(new PaddleStreamers.DecrementSpeed());
+    this.store.dispatch(new PaddleSteamers.DecrementSpeed());
   }
 
   incrementSpeed(): void {
-    this.store.dispatch(new PaddleStreamers.IncrementSpeed());
+    this.store.dispatch(new PaddleSteamers.IncrementSpeed());
   }
 
   ngOnDestroy(): void {
@@ -98,24 +98,24 @@ export class ControlComponent implements OnDestroy {
   }
 
   moveForward(): void {
-    this.store.dispatch(new PaddleStreamers.MoveForward());
+    this.store.dispatch(new PaddleSteamers.MoveForward());
   }
 
   rotateLeft(): void {
-    this.store.dispatch(new PaddleStreamers.RotateLeft());
+    this.store.dispatch(new PaddleSteamers.RotateLeft());
   }
 
   rotateRight(): void {
-    this.store.dispatch(new PaddleStreamers.RotateRight());
+    this.store.dispatch(new PaddleSteamers.RotateRight());
   }
 
   stepBack(): void {
-    this.store.dispatch(new PaddleStreamers.StepBack());
+    this.store.dispatch(new PaddleSteamers.StepBack());
   }
 
   private endTurn(): void {
-    this.store.dispatch(new PaddleStreamers.EndTurn());
-    const tileId = getTileIdBySpaceId(this.paddleStreamer?.currentSpaceId as string);
+    this.store.dispatch(new PaddleSteamers.EndTurn());
+    const tileId = getTileIdBySpaceId(this.paddleSteamer?.currentSpaceId as string);
 
     if (!tileId) {
       return;
@@ -123,7 +123,7 @@ export class ControlComponent implements OnDestroy {
 
     this.store.dispatch(new Tiles.AddTriggeredId(tileId));
     const timeoutId = setTimeout(() => {
-      this.store.dispatch(new PaddleStreamers.TriggerScan());
+      this.store.dispatch(new PaddleSteamers.TriggerScan());
       clearTimeout(timeoutId);
     }, 100);
   }

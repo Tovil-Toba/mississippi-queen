@@ -2,9 +2,9 @@ import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChi
 import { distinctUntilChanged, map, Observable, Subject, takeUntil } from 'rxjs';
 import { Select, Store } from '@ngxs/store';
 
-import { PaddleStreamerColorEnum } from '../shared/paddle-streamer-color.enum';
-import { PaddleStreamers } from '../store/paddle-streamers/paddle-streamers.actions';
-import { PaddleStreamersState } from '../store/paddle-streamers/paddle-streamers.state';
+import { PaddleSteamerColorEnum } from '../shared/paddle-steamer-color.enum';
+import { PaddleSteamers } from '../store/paddle-steamers/paddle-steamers.actions';
+import { PaddleSteamersState } from '../store/paddle-steamers/paddle-steamers.state';
 import { SpacesService } from '../shared/spaces.service';
 import { SpaceTypeAdvancedEnum } from '../core/space-type-advanced.enum';
 import { SpaceTypeBasicEnum } from '../core/space-type-basic.enum';
@@ -17,19 +17,19 @@ import { TilesState } from '../store/tiles/tiles.state';
 import { TILE_SIZE } from '../core/default-settings';
 
 @Component({
-  selector: 'app-paddle-streamer',
-  templateUrl: './paddle-streamer.component.html',
-  styleUrls: ['./paddle-streamer.component.scss']
+  selector: 'app-paddle-steamer',
+  templateUrl: './paddle-steamer.component.html',
+  styleUrls: ['./paddle-steamer.component.scss']
 })
-export class PaddleStreamerComponent implements AfterViewInit, OnDestroy, OnInit {
-  @Input() color!: PaddleStreamerColorEnum;
+export class PaddleSteamerComponent implements AfterViewInit, OnDestroy, OnInit {
+  @Input() color!: PaddleSteamerColorEnum;
   @Input() spaceId!: string;
   @Input() tileAngle!: TileAngle;
   @Input() tileSize?: TileSize = TILE_SIZE;
 
   @ViewChild('img') imgRef?: ElementRef;
 
-  @Select(PaddleStreamersState.currentColor) private readonly currentColor$!: Observable<PaddleStreamerColorEnum | undefined>;
+  @Select(PaddleSteamersState.currentColor) private readonly currentColor$!: Observable<PaddleSteamerColorEnum | undefined>;
 
   centerLeft = 0;
   centerTop = 0;
@@ -59,7 +59,7 @@ export class PaddleStreamerComponent implements AfterViewInit, OnDestroy, OnInit
   }
 
   ngAfterViewInit(): void {
-    this.store.dispatch(new PaddleStreamers.TriggerScan());
+    this.store.dispatch(new PaddleSteamers.TriggerScan());
   }
 
   ngOnDestroy(): void {
@@ -75,7 +75,7 @@ export class PaddleStreamerComponent implements AfterViewInit, OnDestroy, OnInit
     ;
 
     this.store
-      .select(PaddleStreamersState.currentAngle)
+      .select(PaddleSteamersState.currentAngle)
       .pipe(
         map((filterFn) => this.currentAngle = filterFn(this.color)),
         takeUntil(this.ngUnsubscribe)
@@ -84,7 +84,7 @@ export class PaddleStreamerComponent implements AfterViewInit, OnDestroy, OnInit
     ;
 
     this.store
-      .select(PaddleStreamersState.scanTrigger)
+      .select(PaddleSteamersState.scanTrigger)
       .pipe(
         map(filterFn => filterFn(this.color)),
         distinctUntilChanged(),
@@ -105,7 +105,7 @@ export class PaddleStreamerComponent implements AfterViewInit, OnDestroy, OnInit
     const rect = img?.getBoundingClientRect();
 
     if (!rect) {
-      console.error('Картинка парохода не найдена');
+      // console.error('Картинка парохода не найдена');
       return;
     }
 
@@ -114,7 +114,7 @@ export class PaddleStreamerComponent implements AfterViewInit, OnDestroy, OnInit
       rect.top + rect.height/2 + this.angleOffsetMultipliers[this.currentAngle].top*this.size
     );
 
-    this.store.dispatch(new PaddleStreamers.SetForwardSpaceId(undefined));
+    this.store.dispatch(new PaddleSteamers.SetForwardSpaceId(undefined));
 
     elements.forEach((element) => {
       const spaceId = element.id.includes('|') && element.id;
@@ -132,7 +132,7 @@ export class PaddleStreamerComponent implements AfterViewInit, OnDestroy, OnInit
       console.log('Forward space type:', spaceType);*/
 
       if (spaceType !== SpaceTypeBasicEnum.Island && spaceType !== SpaceTypeAdvancedEnum.Island) {
-        this.store.dispatch(new PaddleStreamers.SetForwardSpaceId(spaceId));
+        this.store.dispatch(new PaddleSteamers.SetForwardSpaceId(spaceId));
       }
     });
   }

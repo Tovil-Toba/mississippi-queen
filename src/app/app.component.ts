@@ -4,8 +4,8 @@ import { PrimeNGConfig } from 'primeng/api';
 import { Select, Store } from '@ngxs/store';
 
 import { MaxTilesCount } from './core/max-tiles-count.model';
-import { PaddleStreamers } from './store/paddle-streamers/paddle-streamers.actions';
-import { PaddleStreamersCount } from './core/paddle-streamers-count.model';
+import { PaddleSteamers } from './store/paddle-steamers/paddle-steamers.actions';
+import { PaddleSteamersCount } from './core/paddle-steamers-count.model';
 import { SettingsService } from './core/settings.service';
 import { SpaceIndex } from './core/space-index.model';
 import { SpaceTypeAdvancedEnum } from './core/space-type-advanced.enum';
@@ -40,8 +40,8 @@ export class AppComponent implements OnInit {
     return this.settings.maxTilesCount;
   }
 
-  get paddleStreamersCount(): PaddleStreamersCount {
-    return this.settings.paddleStreamersCount;
+  get paddleSteamersCount(): PaddleSteamersCount {
+    return this.settings.paddleSteamersCount;
   }
 
   get tileSize(): TileSize {
@@ -54,7 +54,7 @@ export class AppComponent implements OnInit {
   }
 
   onScroll(): void {
-    this.store.dispatch(new PaddleStreamers.TriggerScan());
+    this.store.dispatch(new PaddleSteamers.TriggerScan());
   }
 
   private info(): void {

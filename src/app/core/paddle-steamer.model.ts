@@ -1,12 +1,12 @@
 import { Coal } from './coal.model';
-import { PaddleStreamerColorEnum } from '../shared/paddle-streamer-color.enum';
+import { PaddleSteamerColorEnum } from '../shared/paddle-steamer-color.enum';
 import { Passengers } from './passengers.model';
 import { Speed } from './speed.model';
 import { TileAngle } from './tile-angle.model';
 
-export interface PaddleStreamer {
+export interface PaddleSteamer {
   coal: Coal;
-  color: PaddleStreamerColorEnum;
+  color: PaddleSteamerColorEnum;
   currentAngle: TileAngle;
   currentSpaceId?: string;
   forwardSpaceId?: string;
