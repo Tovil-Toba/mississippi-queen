@@ -1,5 +1,5 @@
 import { PaddleSteamer } from '../../core/paddle-steamer.model';
-import { PaddleSteamerColorEnum } from '../../shared/paddle-steamer-color.enum';
+import { PaddleSteamerColorEnum } from '../../core/paddle-steamer-color.enum';
 import { Speed } from '../../core/speed.model';
 import { TileAngle } from '../../core/tile-angle.model';
 

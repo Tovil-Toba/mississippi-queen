@@ -1,5 +1,5 @@
 import { Coal } from './coal.model';
-import { PaddleSteamerColorEnum } from '../shared/paddle-steamer-color.enum';
+import { PaddleSteamerColorEnum } from './paddle-steamer-color.enum';
 import { Passengers } from './passengers.model';
 import { Speed } from './speed.model';
 import { TileAngle } from './tile-angle.model';

@@ -3,11 +3,11 @@ import { Store } from '@ngxs/store';
 
 import { PaddleSteamer } from './paddle-steamer.model';
 import { PaddleSteamers } from '../store/paddle-steamers/paddle-steamers.actions';
-import { PaddleSteamerColorEnum } from '../shared/paddle-steamer-color.enum';
+import { PaddleSteamerColorEnum } from './paddle-steamer-color.enum';
 import { PaddleSteamersCount } from './paddle-steamers-count.model';
 import { shuffleArray } from '../shared/utils';
 
-import { PADDLE_STEAMER_COLORS_WITHOUT_BLACK_ROSE } from '../shared/paddle-steamer-colors';
+import { PADDLE_STEAMER_COLORS_WITHOUT_BLACK_ROSE } from './paddle-steamer-colors';
 import { START_SPACE_IDS } from './start-tile';
 
 @Injectable({

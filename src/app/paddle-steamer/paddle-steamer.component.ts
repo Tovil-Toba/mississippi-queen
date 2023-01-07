@@ -2,7 +2,7 @@ import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChi
 import { distinctUntilChanged, map, Observable, Subject, takeUntil } from 'rxjs';
 import { Select, Store } from '@ngxs/store';
 
-import { PaddleSteamerColorEnum } from '../shared/paddle-steamer-color.enum';
+import { PaddleSteamerColorEnum } from '../core/paddle-steamer-color.enum';
 import { PaddleSteamers } from '../store/paddle-steamers/paddle-steamers.actions';
 import { PaddleSteamersState } from '../store/paddle-steamers/paddle-steamers.state';
 import { SpacesService } from '../shared/spaces.service';

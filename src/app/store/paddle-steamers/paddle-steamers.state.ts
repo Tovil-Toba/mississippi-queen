@@ -5,7 +5,7 @@ import { produce } from 'immer';
 
 import { PaddleSteamer } from '../../core/paddle-steamer.model';
 import { PaddleSteamers } from './paddle-steamers.actions';
-import { PaddleSteamerColorEnum } from '../../shared/paddle-steamer-color.enum';
+import { PaddleSteamerColorEnum } from '../../core/paddle-steamer-color.enum';
 import { PaddleSteamersStateModel } from './paddle-steamers.model';
 import { SettingsService } from '../../core/settings.service';
 import { Speed } from '../../core/speed.model';
