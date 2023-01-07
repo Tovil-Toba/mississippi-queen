@@ -14,6 +14,7 @@ import { TileComponent } from '../shared/tile-component.model';
 import { TileSize } from '../core/tile-size.model';
 import { TilesState } from '../store/tiles/tiles.state';
 
+import { START_SPACE_IDS } from '../core/start-tile';
 import { TILE_SIZE } from '../core/default-settings';
 
 @Component({
@@ -22,9 +23,9 @@ import { TILE_SIZE } from '../core/default-settings';
   styleUrls: ['./paddle-steamer.component.scss']
 })
 export class PaddleSteamerComponent implements AfterViewInit, OnDestroy, OnInit {
-  @Input() color!: PaddleSteamerColorEnum;
-  @Input() spaceId!: string;
-  @Input() tileAngle!: TileAngle;
+  @Input() color: PaddleSteamerColorEnum = PaddleSteamerColorEnum.Red;
+  @Input() spaceId: string = START_SPACE_IDS[0];
+  @Input() tileAngle: TileAngle = 0;
   @Input() tileSize?: TileSize = TILE_SIZE;
 
   @ViewChild('img') imgRef?: ElementRef;

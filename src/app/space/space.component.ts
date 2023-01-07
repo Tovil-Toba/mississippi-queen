@@ -9,6 +9,7 @@ import { SpaceIndex } from '../core/space-index.model';
 import { TileAngle } from '../core/tile-angle.model';
 import { TileId } from '../core/tile-id.model';
 
+import { START_SPACE_IDS, START_SPACE_INDEXES, START_TILE_ID } from '../core/start-tile';
 import { TILE_SIZE } from '../core/default-settings';
 
 @Component({
@@ -17,12 +18,12 @@ import { TILE_SIZE } from '../core/default-settings';
   styleUrls: ['./space.component.scss']
 })
 export class SpaceComponent implements OnDestroy {
-  @Input() centerLeft!: number;
-  @Input() centerTop!: number;
-  @Input() id!: string;
-  @Input() index!: SpaceIndex;
-  @Input() tileAngle!: TileAngle;
-  @Input() tileId!: TileId;
+  @Input() centerLeft = 0;
+  @Input() centerTop = 0;
+  @Input() id: string = START_SPACE_IDS[0];
+  @Input() index: SpaceIndex = START_SPACE_INDEXES[0];
+  @Input() tileAngle: TileAngle = 0;
+  @Input() tileId: TileId = START_TILE_ID;
   @Input() tileSize?: TileSize = TILE_SIZE;
 
   // isHighlightHidden = true;

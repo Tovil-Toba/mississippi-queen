@@ -160,7 +160,7 @@ export class PaddleSteamersState {
     const finishSpaceIds = this.store.selectSnapshot(TilesState.finishSpaceIds);
     const maxTilesCount = this.settings.maxTilesCount;
     const tilesCount = this.store.selectSnapshot(TilesState.tilesCount);
-    let order = state.order;
+    let order = [...state.order];
     const currentColorOrderIndex = order.indexOf(currentColor);
     const nextColor = order[currentColorOrderIndex + 1] ?? order[0];
     let finishedColors = state.finishedColors;
